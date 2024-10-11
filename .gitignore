@@ -1,0 +1,16 @@
+*.aux
+*.blg
+*.dvi
+*.bcf
+*.bbl
+*.fls
+*.log
+*.xml
+*.fdb_latexmk
+*.toc
+*.out
+*.xcp
+*.pdf
+*.cut
+*SAVE-ERROR
+*.pdfsync
