@@ -8,14 +8,11 @@ def all_possible(gaps, size):
     min_start = 0
     max_start = (size-g) - (sum(gaps[1:]) + (len(gaps)-1))
 
-    # print(f"called with size = {size}")
-
     if len(gaps) == 1:
         return list(map(lambda x: [x], range(min_start, max_start+1)))
 
     ans = []
     for start in range(min_start, max_start+1):
-        # print(f"Checking start from {start}")
         offset = start + g + 1
         for relative_positions in all_possible(gaps[1:], size - offset):
             positions = [start] + list(map(lambda p: p + offset, relative_positions))
@@ -94,7 +91,7 @@ def show_bits(bits):
                 print('[ ]', end=' ')  # Leave a space for False
         print()  # Newline after each row
 
-def nonogram(V, H):
+def nonogram(V, H, show = True):
     """
     TBA
     """
@@ -105,9 +102,11 @@ def nonogram(V, H):
     s, x = gen_z3(width, height)
     bits = _nonogram(V, H, s, x)
 
-    if len(bits) > 0:
+    if len(bits) > 0 and show:
         print("")
         show_bits(bits)
+
+    return bits
 
 def _nonogram(V, H, s, x):
     """
@@ -120,8 +119,6 @@ def _nonogram(V, H, s, x):
 
     width = len(V)
     height = len(H)
-
-    print(f"solving problem with width={width}, height={height}")
 
     x_t = transpose(x)
 
@@ -163,8 +160,6 @@ def well_posed(V, H):
 
 def main():
     print(well_posed([[2,1],[2,1,3],[7],[1,3],[2,1]],[[2],[2,1],[1,1],[3],[1,1],[1,1],[2],[1,1],[1,2],[2]]))
-    # print(all_possible([1, 1], 5))
-
 
 if __name__ == "__main__":
     main()
