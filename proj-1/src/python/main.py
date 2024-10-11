@@ -96,6 +96,21 @@ def show_bits(bits):
 
 def nonogram(V, H):
     """
+    TBA
+    """
+
+    width = len(V)
+    height = len(H)
+
+    s, x = gen_z3(width, height)
+    bits = _nonogram(V, H, s, x)
+
+    if len(bits) > 0:
+        print("")
+        show_bits(bits)
+
+def _nonogram(V, H, s, x):
+    """
     Function that given two lists V and H of lists of positive integers, determines a solution
     for the nonogram, if there is one.
     Inputs:
@@ -108,7 +123,6 @@ def nonogram(V, H):
 
     print(f"solving problem with width={width}, height={height}")
 
-    s, x = gen_z3(width, height)
     x_t = transpose(x)
 
     for i, line in enumerate(H):
@@ -117,16 +131,7 @@ def nonogram(V, H):
     for i, line in enumerate(V):
         constraints_for_line(line, height, s, x_t[i])
 
-    ans = s.check()
-    print(ans)
-
-    if ans == sat:
-        model = s.model()
-        bits = model_to_bitmap(model, width, height)
-        print("")
-        show_bits(bits)
-    else:
-        print("No solution found")
+    return model_to_bitmap(s.model(), width, height) if s.check() == sat else []
 
 def well_posed(V, H):
     """
@@ -137,10 +142,27 @@ def well_posed(V, H):
     - H: horizontal constraints
     """
 
-    pass
+    width = len(V)
+    height = len(H)
+
+    s, x = gen_z3(width, height)
+    bits = _nonogram(V, H, s, x)
+
+    # Add negation of bits as constraints
+    flat = []
+    for i in range(len(bits)):
+        for j in range(len(bits[0])):
+            if bits[i][j]:
+                flat += [x[i][j]]
+            else:
+                flat += [Not(x[i][j])]
+
+    s.add(Not(And(flat)))
+
+    return len(_nonogram(V, H, s, x)) == 0
 
 def main():
-    nonogram([[2,1],[2,1,3],[7],[1,3],[2,1]],[[2],[2,1],[1,1],[3],[1,1],[1,1],[2],[1,1],[1,2],[2]])
+    print(well_posed([[2,1],[2,1,3],[7],[1,3],[2,1]],[[2],[2,1],[1,1],[3],[1,1],[1,1],[2],[1,1],[1,2],[2]]))
     # print(all_possible([1, 1], 5))
 
 
