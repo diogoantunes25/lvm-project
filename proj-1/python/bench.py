@@ -1,5 +1,5 @@
 from nonoguru import *
-import random
+import random, sys
 
 def gaps(bits):
     gaps = []
@@ -35,24 +35,47 @@ def random_test(width, height):
     return ((H, V), int_to_bool(bits))
 
 def main():
-    i = 0
-    count = 1000
-    while i < count:
-        if solve_one():
-            i += 1
+    if len(sys.argv) < 2:
+        print("Please provide a filename.")
+    else:
+        filename = sys.argv[1]
 
-def solve_one():
-    input, output = random_test(5, 10)
-    myoutputs = all_solutions(*input)
-    if len(myoutputs) != 1:
-        print("I wasn't able to find a single solution")
-        return False
+    count = 10
+    stats = []
 
-    myoutput = myoutputs[0]
+    values = [(5, 10), (2, 4)]
+
+    for (width, height) in values:
+        this_stats = []
+        while len(this_stats) < count:
+            stat = bench_single(width, height)
+            stat["width"] = width
+            stat["height"] = height
+
+            this_stats += [stat]
+
+        stats += this_stats
+
+    # print to csv
+    with open(filename, 'w') as fh:
+        fh.write("width, height, init, solving\n")
+        for stat in stats:
+            fh.write(f"{stat['width']}, {stat['height']}, {stat['init']}, {stat['solving']}\n")
+
+
+def bench_single(width, height):
+    myoutputs = []
+    while len(myoutputs) != 1:
+        input, output = random_test(width, height)
+        myoutputs = all_solutions(*input)
+
+    myoutput, stats = nonogram(*input, return_stats = True, show = False)
+
+    print(stats)
+
     match = (myoutput == output)
     if match:
-        print("Correct")
-        return True
+        return stats
     else:
         print("Failed")
 

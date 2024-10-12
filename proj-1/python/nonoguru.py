@@ -98,7 +98,7 @@ def show_bits(bits):
                 print('[ ]', end=' ')  # Leave a space for False
         print()  # Newline after each row
 
-def nonogram(V, H, show = True):
+def nonogram(V, H, show = True, return_stats = False):
     """
     TBA
     """
@@ -107,15 +107,19 @@ def nonogram(V, H, show = True):
     height = len(H)
 
     s, x = gen_z3(width, height)
-    bits = _nonogram(V, H, s, x)
+
+    if return_stats:
+        bits, stats = _nonogram(V, H, s, x, return_stats = True)
+    else:
+        bits = _nonogram(V, H, s, x, return_stats = False)
 
     if len(bits) > 0 and show:
         print("")
         show_bits(bits)
 
-    return bits
+    return (bits, stats) if return_stats else bits
 
-def _nonogram(V, H, s, x):
+def _nonogram(V, H, s, x, return_stats = False):
     """
     Function that given two lists V and H of lists of positive integers, determines a solution
     for the nonogram, if there is one.
@@ -123,6 +127,8 @@ def _nonogram(V, H, s, x):
     - V: vertical constraints
     - H: horizontal constraints
     """
+
+    start = time.time()
 
     width = len(V)
     height = len(H)
@@ -135,7 +141,17 @@ def _nonogram(V, H, s, x):
     for i, line in enumerate(V):
         constraints_for_line(line, height, s, x_t[i])
 
-    return model_to_bitmap(s.model(), width, height) if s.check() == sat else []
+    middle = time.time()
+
+    ans = s.check()
+
+    end = time.time()
+
+    stats = {"init": middle-start, "solving": end-middle}
+
+    bits = model_to_bitmap(s.model(), width, height) if ans == sat else []
+
+    return (bits, stats) if return_stats else bits
 
 # Less eficient version
 def well_posed_2(V, H):
