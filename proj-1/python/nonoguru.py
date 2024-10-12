@@ -137,7 +137,8 @@ def _nonogram(V, H, s, x):
 
     return model_to_bitmap(s.model(), width, height) if s.check() == sat else []
 
-def well_posed(V, H):
+# Less eficient version
+def well_posed_2(V, H):
     """
     Function that given two lists V and H of lists of positive integers, determines if the given
     constraints define a well posed puzzle.
@@ -165,7 +166,7 @@ def well_posed(V, H):
 
     return len(_nonogram(V, H, s, x)) == 0
 
-def well_posed_2(V, H):
+def well_posed(V, H):
     """
     Function that given two lists V and H of lists of positive integers, determines if the given
     constraints define a well posed puzzle.
@@ -194,7 +195,8 @@ def well_posed_2(V, H):
     # For the puzzle to be well-posed, this should now be unsat
     return s.check() != sat
 
-def all_solutions(V, H):
+# Less eficient version
+def all_solutions_2(V, H):
     """
     """
 
@@ -222,7 +224,7 @@ def all_solutions(V, H):
 
     return solutions
 
-def all_solutions_2(V, H):
+def all_solutions(V, H):
     """
     """
 
