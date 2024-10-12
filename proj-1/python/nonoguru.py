@@ -1,8 +1,15 @@
 from z3 import *
+import time
+
+TEST_1 = ([[1, 1, 2, 1], [2, 1], [1, 1, 1, 2], [1, 1, 3], [1]], [[1], [3], [1], [1, 2], [1], [1], [1, 2], [1], [3], [1, 1]])
+TEST_1_SOL = [[False, False, False, True, False], [True, True, True, False, False], [False, True, False, False, False], [True, False, True, True, False], [False, False, False, False, True], [True, False, False, False, False], [True, False, True, True, False], [False, False, False, True, False], [False, True, True, True, False], [True, False, True, False, False]]
 
 def all_possible(gaps, size):
     """
     """
+
+    if len(gaps) == 0:
+        return []
 
     g = gaps[0]
     min_start = 0
@@ -158,8 +165,93 @@ def well_posed(V, H):
 
     return len(_nonogram(V, H, s, x)) == 0
 
+def well_posed_2(V, H):
+    """
+    Function that given two lists V and H of lists of positive integers, determines if the given
+    constraints define a well posed puzzle.
+    Inputs:
+    - V: vertical constraints
+    - H: horizontal constraints
+    """
+
+    width = len(V)
+    height = len(H)
+
+    s, x = gen_z3(width, height)
+    bits = _nonogram(V, H, s, x)
+
+    # Add negation of bits as constraints
+    flat = []
+    for i in range(len(bits)):
+        for j in range(len(bits[0])):
+            if bits[i][j]:
+                flat += [x[i][j]]
+            else:
+                flat += [Not(x[i][j])]
+
+    s.add(Not(And(flat)))
+
+    # For the puzzle to be well-posed, this should now be unsat
+    return s.check() != sat
+
+def all_solutions(V, H):
+    """
+    """
+
+    width = len(V)
+    height = len(H)
+
+    s, x = gen_z3(width, height)
+    bits = _nonogram(V, H, s, x)
+
+    solutions = []
+    while len(bits) > 0:
+        solutions += [bits]
+        # Add negation of bits as constraints
+        flat = []
+        for i in range(len(bits)):
+            for j in range(len(bits[0])):
+                if bits[i][j]:
+                    flat += [x[i][j]]
+                else:
+                    flat += [Not(x[i][j])]
+
+        s.add(Not(And(flat)))
+
+        bits = _nonogram(V, H, s, x)
+
+    return solutions
+
+def all_solutions_2(V, H):
+    """
+    """
+
+    width = len(V)
+    height = len(H)
+
+    s, x = gen_z3(width, height)
+    bits = _nonogram(V, H, s, x)
+
+    solutions = []
+    while len(bits) > 0:
+        solutions += [bits]
+        # Add negation of bits as constraints
+        flat = []
+        for i in range(len(bits)):
+            for j in range(len(bits[0])):
+                if bits[i][j]:
+                    flat += [x[i][j]]
+                else:
+                    flat += [Not(x[i][j])]
+
+        s.add(Not(And(flat)))
+
+        bits = model_to_bitmap(s.model(), width, height) if s.check() == sat else []
+
+    return solutions
+
 def main():
-    print(well_posed([[2,1],[2,1,3],[7],[1,3],[2,1]],[[2],[2,1],[1,1],[3],[1,1],[1,1],[2],[1,1],[1,2],[2]]))
+    pass
 
 if __name__ == "__main__":
     main()
