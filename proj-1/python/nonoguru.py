@@ -27,7 +27,7 @@ def all_possible(gaps, size):
 
     return ans
 
-def constraints_for_line(gaps, size, s, x):
+def constraints_for_line_2(gaps, size, s, x):
     """
     TBA
     """
@@ -58,6 +58,62 @@ def constraints_for_line(gaps, size, s, x):
         valid_starts += [And(values)]
 
     s.add(Or(valid_starts))
+
+def constraints_for_line(gaps, size, s, x):
+    """
+    TBA
+    """
+
+    c = [[Bool(f"c_{j}_{i}") for i in range(size+1)] for j in range(len(gaps))]
+
+    for i, gap in enumerate(gaps):
+        min_start = sum(gaps[:i]) + len(gaps[:i])
+        max_start = size - (sum(gaps[i:]) + len(gaps[i+1:]))
+
+        # Ensure proper gaps
+        for start in range(min_start, max_start + 1):
+
+            # Previous did not start completing and I want to start
+            left = And(Not(c[i][start+gap-1]), x[start]) if start > 0 else x[start]
+
+            remaining = And(list(map(lambda i: x[i], range(start+1, start+gap))))
+
+            if i < len(gaps) - 1:
+                # not last gap
+                slack = Not(x[start+gap])
+            else:
+                slack = And(list(map(lambda i: Not(x[i]), range(start+gap, size))))
+
+            right = And([remaining, slack, c[i][start+gap]])
+
+            s.add(Implies(left, right))
+
+        # add constraints implications
+        for start in range(min_start, size):
+            s.add(Implies(c[i][start], c[i][start+1]))
+
+        # add backpropagation
+        for j in range(min_start+1, size+1):
+            # j is the empty cell
+            # corresponding start is j - gap
+            start = j - gap
+            if start <= max_start:
+                remaining = And(list(map(lambda i: x[i], range(start, start+gap))))
+                s.add(Implies(c[i][j], Or(c[i][j-1], remaining)))
+            else:
+                s.add(Implies(c[i][j], c[i][j-1]))
+
+        # ensure completion
+        s.add(c[i][size])
+
+        # all starts false
+        s.add(And(list(map(lambda j: Not(c[i][j]), range(0, min_start+gap)))))
+
+        # ensure orderly completion
+        for k in range(0, max_start):
+            if i < len(gaps) - 1:
+                cooldown = And(list(map(lambda j: Not(c[i+1][j+gap]), range(k, k+gap))))
+                s.add(Implies(Not(c[i][k+gap]), cooldown))
 
 
 def gen_z3(width, height):
@@ -269,7 +325,23 @@ def all_solutions(V, H):
     return solutions
 
 def main():
-    pass
+    s, xs = gen_z3(10, 10)
+    constraints_for_line([3, 2], 10, s, xs[0])
+    s.add(Not(And([xs[0][1], xs[0][2], xs[0][3], xs[0][8], xs[0][9]])))
+    s.add(Not(And([xs[0][0], xs[0][1], xs[0][2], xs[0][8], xs[0][9]])))
+    s.add(Not(And([xs[0][0], xs[0][1], xs[0][2], xs[0][7], xs[0][8]])))
+    s.add(Not(And([xs[0][0], xs[0][1], xs[0][2], xs[0][6], xs[0][7]])))
+    s.add(Not(And([xs[0][0], xs[0][1], xs[0][2], xs[0][4], xs[0][5]])))
+    s.add(Not(And([xs[0][0], xs[0][1], xs[0][2], xs[0][5], xs[0][6]])))
+    # print(s)
+
+    s.check()
+    m = s.model()
+    res = []
+    for t in m.decls():
+        if is_true(m[t]):
+            res += [str(t)]
+    print('\n'.join(sorted(res)))
 
 if __name__ == "__main__":
     main()
