@@ -1,8 +1,10 @@
 from z3 import *
 import time
 
-TEST_1 = ([[1, 1, 2, 1], [2, 1], [1, 1, 1, 2], [1, 1, 3], [1]], [[1], [3], [1], [1, 2], [1], [1], [1, 2], [1], [3], [1, 1]])
-TEST_1_SOL = [[False, False, False, True, False], [True, True, True, False, False], [False, True, False, False, False], [True, False, True, True, False], [False, False, False, False, True], [True, False, False, False, False], [True, False, True, True, False], [False, False, False, True, False], [False, True, True, True, False], [True, False, True, False, False]]
+adsfadf = 0
+
+OFFICIAL_EXAMPLE = ([[2,1],[2,1,3],[7],[1,3],[2,1]], [[2],[2,1],[1,1],[3],[1,1],[1,1],[2],[1,1],[1,2],[2]])
+OFFICIAL_SOLUTION = [[False, True, True, False, False], [False, True, True, False, True], [False, False, True, False, True], [False, True, True, True, False], [True, False, True, False, False], [True, False, True, False, False], [False, False, True, True, False], [False, True, False, True, False], [False, True, False, True, True], [True, True, False, False, False]]
 
 def all_possible(gaps, size):
     """
@@ -27,7 +29,7 @@ def all_possible(gaps, size):
 
     return ans
 
-def constraints_for_line_2(gaps, size, s, x):
+def constraints_for_line_brute(gaps, size, s, x):
     """
     TBA
     """
@@ -59,12 +61,12 @@ def constraints_for_line_2(gaps, size, s, x):
 
     s.add(Or(valid_starts))
 
-def constraints_for_line(gaps, size, s, x):
+def constraints_for_line_poly(gaps, size, s, x, id = 0):
     """
     TBA
     """
 
-    c = [[Bool(f"c_{j}_{i}") for i in range(size+1)] for j in range(len(gaps))]
+    c = [[Bool(f"c_{id}_{j}_{i}") for i in range(size+1)] for j in range(len(gaps))]
 
     for i, gap in enumerate(gaps):
         min_start = sum(gaps[:i]) + len(gaps[:i])
@@ -74,7 +76,11 @@ def constraints_for_line(gaps, size, s, x):
         for start in range(min_start, max_start + 1):
 
             # Previous did not start completing and I want to start
-            left = And(Not(c[i][start+gap-1]), x[start]) if start > 0 else x[start]
+            # Also, previous gap should already have finished
+            if i == 0:
+                left = And(Not(c[i][start+gap-1]), x[start]) if start > 0 else x[start]
+            else:
+                left = And(c[i-1][start], Not(c[i][start+gap-1]), x[start]) if start > 0 else x[start]
 
             remaining = And(list(map(lambda i: x[i], range(start+1, start+gap))))
 
@@ -109,12 +115,6 @@ def constraints_for_line(gaps, size, s, x):
         # all starts false
         s.add(And(list(map(lambda j: Not(c[i][j]), range(0, min_start+gap)))))
 
-        # ensure orderly completion
-        for k in range(0, max_start):
-            if i < len(gaps) - 1:
-                cooldown = And(list(map(lambda j: Not(c[i+1][j+gap]), range(k, k+gap))))
-                s.add(Implies(Not(c[i][k+gap]), cooldown))
-
 
 def gen_z3(width, height):
     """
@@ -140,8 +140,9 @@ def model_to_bitmap(model, width, height):
     bits = [[False for _ in range(width)] for _ in range(height)]
 
     for v in model:
-        x, y = list(map(int, v.name().split("_")[1:]))
-        bits[y][x] = model[v]
+        if v.name()[0] == "x":
+            x, y = list(map(int, v.name().split("_")[1:]))
+            bits[y][x] = model[v]
 
     return bits
 
@@ -154,7 +155,7 @@ def show_bits(bits):
                 print('[ ]', end=' ')  # Leave a space for False
         print()  # Newline after each row
 
-def nonogram(V, H, show = True, return_stats = False):
+def nonogram(V, H, show = True, return_stats = False, constraints_for_line = constraints_for_line_poly):
     """
     TBA
     """
@@ -165,17 +166,20 @@ def nonogram(V, H, show = True, return_stats = False):
     s, x = gen_z3(width, height)
 
     if return_stats:
-        bits, stats = _nonogram(V, H, s, x, return_stats = True)
+        bits, stats = _nonogram(V, H, s, x, return_stats = True, constraints_for_line = constraints_for_line_poly)
     else:
-        bits = _nonogram(V, H, s, x, return_stats = False)
+        bits = _nonogram(V, H, s, x, return_stats = False, constraints_for_line = constraints_for_line_poly)
 
-    if len(bits) > 0 and show:
-        print("")
-        show_bits(bits)
+    if show:
+        if len(bits) > 0:
+            print("")
+            show_bits(bits)
+        else:
+            print("unsat")
 
     return (bits, stats) if return_stats else bits
 
-def _nonogram(V, H, s, x, return_stats = False):
+def _nonogram(V, H, s, x, return_stats = False, constraints_for_line = constraints_for_line_poly):
     """
     Function that given two lists V and H of lists of positive integers, determines a solution
     for the nonogram, if there is one.
@@ -191,11 +195,14 @@ def _nonogram(V, H, s, x, return_stats = False):
 
     x_t = transpose(x)
 
+    j = 0
     for i, line in enumerate(H):
-        constraints_for_line(line, width, s, x[i])
+        constraints_for_line(line, width, s, x[i], id = j)
+        j += 1
 
     for i, line in enumerate(V):
-        constraints_for_line(line, height, s, x_t[i])
+        constraints_for_line(line, height, s, x_t[i], id = j)
+        j += 1
 
     middle = time.time()
 
@@ -207,10 +214,13 @@ def _nonogram(V, H, s, x, return_stats = False):
 
     bits = model_to_bitmap(s.model(), width, height) if ans == sat else []
 
+    global adsfadf
+    print(f"done = {adsfadf}")
+    adsfadf += 1
+
     return (bits, stats) if return_stats else bits
 
-# Less eficient version
-def well_posed_2(V, H):
+def well_posed(V, H, constraints_for_line = constraints_for_line_poly):
     """
     Function that given two lists V and H of lists of positive integers, determines if the given
     constraints define a well posed puzzle.
@@ -223,35 +233,7 @@ def well_posed_2(V, H):
     height = len(H)
 
     s, x = gen_z3(width, height)
-    bits = _nonogram(V, H, s, x)
-
-    # Add negation of bits as constraints
-    flat = []
-    for i in range(len(bits)):
-        for j in range(len(bits[0])):
-            if bits[i][j]:
-                flat += [x[i][j]]
-            else:
-                flat += [Not(x[i][j])]
-
-    s.add(Not(And(flat)))
-
-    return len(_nonogram(V, H, s, x)) == 0
-
-def well_posed(V, H):
-    """
-    Function that given two lists V and H of lists of positive integers, determines if the given
-    constraints define a well posed puzzle.
-    Inputs:
-    - V: vertical constraints
-    - H: horizontal constraints
-    """
-
-    width = len(V)
-    height = len(H)
-
-    s, x = gen_z3(width, height)
-    bits = _nonogram(V, H, s, x)
+    bits = _nonogram(V, H, s, x, constraints_for_line = constraints_for_line_poly)
 
     # Add negation of bits as constraints
     flat = []
@@ -267,8 +249,7 @@ def well_posed(V, H):
     # For the puzzle to be well-posed, this should now be unsat
     return s.check() != sat
 
-# Less eficient version
-def all_solutions_2(V, H):
+def all_solutions(V, H, constraints_for_line = constraints_for_line_poly):
     """
     """
 
@@ -276,35 +257,7 @@ def all_solutions_2(V, H):
     height = len(H)
 
     s, x = gen_z3(width, height)
-    bits = _nonogram(V, H, s, x)
-
-    solutions = []
-    while len(bits) > 0:
-        solutions += [bits]
-        # Add negation of bits as constraints
-        flat = []
-        for i in range(len(bits)):
-            for j in range(len(bits[0])):
-                if bits[i][j]:
-                    flat += [x[i][j]]
-                else:
-                    flat += [Not(x[i][j])]
-
-        s.add(Not(And(flat)))
-
-        bits = _nonogram(V, H, s, x)
-
-    return solutions
-
-def all_solutions(V, H):
-    """
-    """
-
-    width = len(V)
-    height = len(H)
-
-    s, x = gen_z3(width, height)
-    bits = _nonogram(V, H, s, x)
+    bits = _nonogram(V, H, s, x, constraints_for_line = constraints_for_line_poly)
 
     solutions = []
     while len(bits) > 0:
@@ -325,23 +278,7 @@ def all_solutions(V, H):
     return solutions
 
 def main():
-    s, xs = gen_z3(10, 10)
-    constraints_for_line([3, 2], 10, s, xs[0])
-    s.add(Not(And([xs[0][1], xs[0][2], xs[0][3], xs[0][8], xs[0][9]])))
-    s.add(Not(And([xs[0][0], xs[0][1], xs[0][2], xs[0][8], xs[0][9]])))
-    s.add(Not(And([xs[0][0], xs[0][1], xs[0][2], xs[0][7], xs[0][8]])))
-    s.add(Not(And([xs[0][0], xs[0][1], xs[0][2], xs[0][6], xs[0][7]])))
-    s.add(Not(And([xs[0][0], xs[0][1], xs[0][2], xs[0][4], xs[0][5]])))
-    s.add(Not(And([xs[0][0], xs[0][1], xs[0][2], xs[0][5], xs[0][6]])))
-    # print(s)
-
-    s.check()
-    m = s.model()
-    res = []
-    for t in m.decls():
-        if is_true(m[t]):
-            res += [str(t)]
-    print('\n'.join(sorted(res)))
+    print(all_solutions(*OFFICIAL_EXAMPLE))
 
 if __name__ == "__main__":
     main()

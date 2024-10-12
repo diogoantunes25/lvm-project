@@ -32,7 +32,10 @@ def random_test(width, height):
     V = gaps(bits)
     H = gaps(transpose(bits))
 
-    return ((H, V), int_to_bool(bits))
+    if [] in V or [] in H:
+        return random_test(width, height)
+    else:
+        return ((H, V), int_to_bool(bits))
 
 def main():
     if len(sys.argv) < 2:
