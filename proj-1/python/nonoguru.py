@@ -1,10 +1,10 @@
 from z3 import *
 import time
 
-adsfadf = 0
-
 OFFICIAL_EXAMPLE = ([[2,1],[2,1,3],[7],[1,3],[2,1]], [[2],[2,1],[1,1],[3],[1,1],[1,1],[2],[1,1],[1,2],[2]])
 OFFICIAL_SOLUTION = [[False, True, True, False, False], [False, True, True, False, True], [False, False, True, False, True], [False, True, True, True, False], [True, False, True, False, False], [True, False, True, False, False], [False, False, True, True, False], [False, True, False, True, False], [False, True, False, True, True], [True, True, False, False, False]]
+
+TEST_2 = ([[1, 1], [1, 1, 1], [2, 1], [5], [2, 1], [1]], [[2, 1], [3], [1, 2], [1, 2], [1], [3, 1]])
 
 def all_possible(gaps, size):
     """
@@ -29,7 +29,7 @@ def all_possible(gaps, size):
 
     return ans
 
-def constraints_for_line_brute(gaps, size, s, x):
+def constraints_for_line_brute(gaps, size, s, x, id = 0):
     """
     TBA
     """
@@ -115,6 +115,13 @@ def constraints_for_line_poly(gaps, size, s, x, id = 0):
         # all starts false
         s.add(And(list(map(lambda j: Not(c[i][j]), range(0, min_start+gap)))))
 
+        # ensure orderly completion
+        for k in range(0, max_start):
+            if i < len(gaps) - 1:
+                next_gap = gaps[i+1]
+                cooldown = And(list(map(lambda j: Not(c[i+1][j+next_gap]), range(k, k+gap+1))))
+                s.add(Implies(Not(c[i][k+gap]), cooldown))
+
 
 def gen_z3(width, height):
     """
@@ -146,6 +153,75 @@ def model_to_bitmap(model, width, height):
 
     return bits
 
+def show_all(H, V, bits):
+    max_h = max(len(h) for h in H)  # Maximum length of horizontal clues
+    max_v = max(len(v) for v in V)  # Maximum length of vertical clues
+    cell_width = 4  # Adjust cell width to match the grid width
+
+    # Prepare vertical clues by transposing and padding them to align with the grid
+    vertical_clues = []
+    for i in range(max_v):
+        row = []
+        for v in V:
+            if len(v) > i:
+                row.append(f'{v[i]:2}')  # Format to align
+            else:
+                row.append('  ')  # Padding for shorter vertical clues
+        vertical_clues.append(row)
+
+    # Print the vertical clues at the top
+    for i in range(max_v):
+        print(' ' + ' ' * (max_h * cell_width), end='')  # Padding for horizontal clues
+        for clue in vertical_clues[i]:
+            print(clue.center(cell_width), end=' ')
+        print()
+
+    # Print horizontal clues and the solution grid
+    for h, row in zip(H, bits):
+        # Print the horizontal clue
+        print(' '.join(f'{x:2}' for x in h).rjust(max_h * cell_width), end='  ')
+
+        # Print the grid row
+        for value in row:
+            if value:
+                print('[T]'.center(cell_width), end=' ')
+            else:
+                print('[ ]'.center(cell_width), end=' ')
+        print()  # Newline after each row
+
+def show2(H, V, bits):
+    max_h = max(len(h) for h in H)  # Maximum length of horizontal clues
+    max_v = max(len(v) for v in V)  # Maximum length of vertical clues
+
+    # Prepare vertical clues by transposing and padding them to align with the grid
+    vertical_clues = []
+    for i in range(max_v):
+        row = []
+        for v in V:
+            if len(v) > i:
+                row.append(f'{v[i]:2}')  # Format to align
+            else:
+                row.append('  ')  # Padding for shorter vertical clues
+        vertical_clues.append(row)
+
+    # Print the vertical clues at the top
+    for i in range(max_v):
+        print(' ' * (max_h * 4), end='')  # Padding for horizontal clues
+        print(' '.join(vertical_clues[i]))
+
+    # Print horizontal clues and the solution grid
+    for h, row in zip(H, bits):
+        # Print the horizontal clue
+        print(' '.join(f'{x:2}' for x in h).rjust(max_h * 4), end='  ')
+
+        # Print the grid row
+        for value in row:
+            if value:
+                print('[T]', end=' ')
+            else:
+                print('[ ]', end=' ')
+        print()  # Newline after each row
+
 def show_bits(bits):
     for row in bits:
         for value in row:
@@ -166,14 +242,15 @@ def nonogram(V, H, show = True, return_stats = False, constraints_for_line = con
     s, x = gen_z3(width, height)
 
     if return_stats:
-        bits, stats = _nonogram(V, H, s, x, return_stats = True, constraints_for_line = constraints_for_line_poly)
+        bits, stats = _nonogram(V, H, s, x, return_stats = True, constraints_for_line = constraints_for_line)
     else:
-        bits = _nonogram(V, H, s, x, return_stats = False, constraints_for_line = constraints_for_line_poly)
+        bits = _nonogram(V, H, s, x, return_stats = False, constraints_for_line = constraints_for_line)
 
     if show:
         if len(bits) > 0:
             print("")
-            show_bits(bits)
+            # show_bits(bits)
+            show_all(H, V, bits)
         else:
             print("unsat")
 
@@ -214,10 +291,6 @@ def _nonogram(V, H, s, x, return_stats = False, constraints_for_line = constrain
 
     bits = model_to_bitmap(s.model(), width, height) if ans == sat else []
 
-    global adsfadf
-    print(f"done = {adsfadf}")
-    adsfadf += 1
-
     return (bits, stats) if return_stats else bits
 
 def well_posed(V, H, constraints_for_line = constraints_for_line_poly):
@@ -233,7 +306,7 @@ def well_posed(V, H, constraints_for_line = constraints_for_line_poly):
     height = len(H)
 
     s, x = gen_z3(width, height)
-    bits = _nonogram(V, H, s, x, constraints_for_line = constraints_for_line_poly)
+    bits = _nonogram(V, H, s, x, constraints_for_line = constraints_for_line)
 
     # Add negation of bits as constraints
     flat = []
@@ -257,7 +330,7 @@ def all_solutions(V, H, constraints_for_line = constraints_for_line_poly):
     height = len(H)
 
     s, x = gen_z3(width, height)
-    bits = _nonogram(V, H, s, x, constraints_for_line = constraints_for_line_poly)
+    bits = _nonogram(V, H, s, x, constraints_for_line = constraints_for_line)
 
     solutions = []
     while len(bits) > 0:
@@ -278,7 +351,22 @@ def all_solutions(V, H, constraints_for_line = constraints_for_line_poly):
     return solutions
 
 def main():
-    print(all_solutions(*OFFICIAL_EXAMPLE))
+    if True:
+        print(nonogram(*TEST_2, constraints_for_line = constraints_for_line_brute))
+    else:
+        s, xs = gen_z3(6, 6)
+        constraints_for_line_poly([3, 1], 6, s, xs[0])
+
+        s.add(And([xs[0][1], xs[0][2], xs[0][3], xs[0][5]]))
+
+        s.check()
+        m = s.model()
+        res = []
+        for t in m.decls():
+            if is_true(m[t]):
+                res += [str(t)]
+        print('\n'.join(sorted(res)))
+
 
 if __name__ == "__main__":
     main()
