@@ -4,8 +4,6 @@ import time
 OFFICIAL_EXAMPLE = ([[2,1],[2,1,3],[7],[1,3],[2,1]], [[2],[2,1],[1,1],[3],[1,1],[1,1],[2],[1,1],[1,2],[2]])
 OFFICIAL_SOLUTION = [[False, True, True, False, False], [False, True, True, False, True], [False, False, True, False, True], [False, True, True, True, False], [True, False, True, False, False], [True, False, True, False, False], [False, False, True, True, False], [False, True, False, True, False], [False, True, False, True, True], [True, True, False, False, False]]
 
-TEST_2 = ([[1, 1], [1, 1, 1], [2, 1], [5], [2, 1], [1]], [[2, 1], [3], [1, 2], [1, 2], [1], [3, 1]])
-
 def all_possible(gaps, size):
     """
     """
@@ -189,39 +187,6 @@ def show_all(H, V, bits):
                 print('[ ]'.center(cell_width), end=' ')
         print()  # Newline after each row
 
-def show2(H, V, bits):
-    max_h = max(len(h) for h in H)  # Maximum length of horizontal clues
-    max_v = max(len(v) for v in V)  # Maximum length of vertical clues
-
-    # Prepare vertical clues by transposing and padding them to align with the grid
-    vertical_clues = []
-    for i in range(max_v):
-        row = []
-        for v in V:
-            if len(v) > i:
-                row.append(f'{v[i]:2}')  # Format to align
-            else:
-                row.append('  ')  # Padding for shorter vertical clues
-        vertical_clues.append(row)
-
-    # Print the vertical clues at the top
-    for i in range(max_v):
-        print(' ' * (max_h * 4), end='')  # Padding for horizontal clues
-        print(' '.join(vertical_clues[i]))
-
-    # Print horizontal clues and the solution grid
-    for h, row in zip(H, bits):
-        # Print the horizontal clue
-        print(' '.join(f'{x:2}' for x in h).rjust(max_h * 4), end='  ')
-
-        # Print the grid row
-        for value in row:
-            if value:
-                print('[T]', end=' ')
-            else:
-                print('[ ]', end=' ')
-        print()  # Newline after each row
-
 def show_bits(bits):
     for row in bits:
         for value in row:
@@ -324,6 +289,7 @@ def well_posed(V, H, constraints_for_line = constraints_for_line_poly):
 
 def all_solutions(V, H, constraints_for_line = constraints_for_line_poly):
     """
+    TBA
     """
 
     width = len(V)
@@ -351,22 +317,7 @@ def all_solutions(V, H, constraints_for_line = constraints_for_line_poly):
     return solutions
 
 def main():
-    if True:
-        print(nonogram(*TEST_2, constraints_for_line = constraints_for_line_brute))
-    else:
-        s, xs = gen_z3(6, 6)
-        constraints_for_line_poly([3, 1], 6, s, xs[0])
-
-        s.add(And([xs[0][1], xs[0][2], xs[0][3], xs[0][5]]))
-
-        s.check()
-        m = s.model()
-        res = []
-        for t in m.decls():
-            if is_true(m[t]):
-                res += [str(t)]
-        print('\n'.join(sorted(res)))
-
+     nonogram(*OFFICIAL_EXAMPLE, show = True, constraints_for_line = constraints_for_line_brute)
 
 if __name__ == "__main__":
     main()
