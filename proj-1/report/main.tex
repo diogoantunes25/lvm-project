@@ -164,24 +164,72 @@ A single start configuration can be encoded as follows:
 
 \subsection*{Polynomial approach}
 
-The idea here is that we want to encode the fact that I can place a section at a given place, and if I do so then the following one can't start at some region of the positions (i.e. not only there's a gap, but the placement must be done in order and we can't have overlap).
-To be able to do this, we require an extra set of variables - $c_i_j$ (note that when solving the entire puzzle, conditions for different lines are distinct and so must be given distinct names).
-\noindent For a given line, $c_i_j$ means that gap $i$ was already placed at position $j$ (when considered from left to right).
-For instance, in the following example, the condition variables take the mentioned values.
+This approach attempts to encode not what are the possible combinations that result from the restrictions of the puzzle but the actual rules and restrictions of the nonogram game.
+For this, we require an extra set of variables - $c_i_j$ (note that when solving the entire puzzle, conditions for different lines are distinct and so must be given distinct names).
+For a given line, $c_i_j$ is intended to mean the gap $i$ was already placed when one gets to position $j$ (when considered from left to right). An ``ghost'' position at the end is considered for convinience (i.e. $c_i_{j}$ exists for $j = size$ as well).
+For instance, consider the following example.
 
-\noindent Having these extra variables will allow us to encode all the requirements we need.
-The first one is that for each starting position a gap might start at \blah{}.
+\begin{center}
+\begin{tikzpicture}
+    % X _ X X _
+    \foreach \x in {1,2,...,5} {
+        \ifnum\x=1 \filldraw[fill=black] (\x*0.5, 0) rectangle (\x*0.5+0.5, -0.5);
+        \else\ifnum\x=3 \filldraw[fill=black] (\x*0.5, 0) rectangle (\x*0.5+0.5, -0.5);
+        \else\ifnum\x=4 \filldraw[fill=black] (\x*0.5, 0) rectangle (\x*0.5+0.5, -0.5);
+        \else \draw (\x*0.5, 0) rectangle (\x*0.5+0.5, -0.5);
+        \fi\fi\fi
+    }
+\end{tikzpicture}
+\end{center}
 
-\noindent Then we need to ensure the semantics of the condition variables: they propagate right.
+\noindent The condition variables will take the following values
 
-\noindent Furthermore, we need to specify that if a condition variable is set, there must be a reason.
+\begin{align*}
+c_0_0 &= F & c_0_1 &= T & c_0_2 &= T & c_0_3 &= T & c_0_4 &= T & c_0_5 &= T \\
+c_1_0 &= F & c_1_1 &= F & c_1_2 &= F & c_1_3 &= F & c_1_4 &= T & c_1_5 &= T
+\end{align*}
 
-\noindent At this point, it might still be possible to complete two gaps at the same ``time''.
-For this reason, we need to ensure the orderly completion of gaps.
+\noindent Having these extra variables will allow us to encode all the requirements we need. Unlike the previous approach we need to encode several things
 
-\noindent Finally, we need to add the boundary conditions - at the start, everything needs to be filled, and at the end everything should be filled.
+\begin{enumerate}
+  \item If a gap starts at $i$, then blah. This translates into the following conditions.
+  \begin{center}
+    $a = b$
+  \end{center}
+
+  \item The completion of a gap should propagate to the right
+  \begin{center}
+    $a = b$
+  \end{center}
+
+  \item A gap at a position can only be complete if the appropriate cells where painted black or if the gap was completed before
+  \begin{center}
+    $a = b$
+  \end{center}
+
+  \item Gaps must be completed in order, i.e. there's a cooldown.
+  \begin{center}
+    $a = b$
+  \end{center}
+
+  \item At the start nothing is completed.
+  \begin{center}
+    $a = b$
+  \end{center}
+
+  \item At the end everything should be completed.
+
+  \begin{center}
+    $a = b$
+  \end{center}
+\end{enumerate}
+
+As can be seen, at no point all possible combinations are considered. For that reason, at most a polynomial amount of restrictions are added.
 
 \subsection*{Evaluation}
+
+In this section we compare the two approaches described previously.
+For that a puzzle generator was implemented. The puzzle size was set to be the sum of the number of rows and columns. For each puzzle size, a puzzle is generated and then both approaches are used to solve it -- both the initialization time and the SAT solving time are measured. This is repeated 100 times. The results can be seen in Figure~\ref{fig:bench}.
 
 \begin{figure}[h]
   \includegraphics[scale=0.5]{bench.png}
@@ -190,8 +238,20 @@ For this reason, we need to ensure the orderly completion of gaps.
   \label{fig:bench}
 \end{figure}
 
-\dsa{Would be nice to have some benchmarking stats comparing different solutions}
-\dsa{Check if time is spent in the setup of model or solving - do it in C and show that it gets better or even using Rust to write to file}
+As can be seen, the polynomial approach is slower for small puzzles, but as soon as the puzzle size reaches 25 it becomes the faster approach.
+
+Additionally, the percentage of time was analysed -- the results are in Figure~\ref{fig:util}
+
+As expected, the initialization time dominates the solving time, especially for smaller problems.
+
+\begin{figure}[h]
+  \includegraphics[scale=0.5]{util.png}
+  \centering
+  \caption{Percentage of time spent in SAT solver}
+  \label{fig:bench}
+\end{figure}
+
+% TODO: say more stuff
 
 % \listoffigures
 
