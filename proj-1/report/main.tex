@@ -20,7 +20,7 @@
 
 \begin{document}
 
-\title{Project 1 - Report}
+\title{Project 1 — Report}
 \author{
   Diogo Antunes\\
   99210
@@ -34,7 +34,205 @@
 
 \maketitle
 
-\section*{\tba Exercise 1}
+\section*{Exercise 1}
+
+The first exercise consisted of solving the CNF-SAT $\phi$ formula with the next constraints:
+
+\begin{align}
+        & (\lnot p_{1} \vee p_{3} \vee p_{4} \vee p_{5}) \\
+        & (\lnot p_{3} \vee p_{4} \vee p_{5}) \\
+        & (\lnot p_{1} \vee p_{3} \vee \lnot p_{4}) \\
+        & (p_{1} \vee p_{2}) \\
+        & (p_{1} \vee \lnot p_{2}) \\
+        & (\lnot p_{1} \vee \lnot p_{5}) \\
+        & (\lnot p_{3} \vee \lnot p_{4} \vee p_{5})
+\end{align}
+
+\vspace{0.5cm}
+
+For this, we used CDCL using 1-UIP (Unit Implication Point) as the conflict analysis strategy.
+When going through conflict clauses, if we arrive to a clause with only one literal that is assigned at the current level, we have found the 1-UIP.
+We backtrack to the variable with a largest decision level other than the current.
+
+\vspace{0.5cm}
+
+\begin{tikzpicture}[
+    every node/.style={anchor=center},
+    level/.style={anchor=center},
+    decision/.style={anchor=center},
+    unit/.style={anchor=center},
+    clause/.style={anchor=center},
+    arrow/.style={->, thick, shorten >=1pt, shorten <=1pt}
+    ]
+
+% Level and Decisions
+\node[level] (Level Label) at (0,0) {Level};
+\node[level] (Level 0) at (0,-1) {0};
+\node[level] (Level 1) at (0,-2) {1};
+\node[level] (Level 2) at (0,-3) {2};
+\node[level] (Level 3) at (0,-4) {3};
+
+\node[decision] at (1.5,0) {Dec.};
+\node[decision] at (1.5,-1) {$\emptyset$};
+\node[decision] (p1) at (1.5,-2) {$p_{1}$};
+\node[decision] (p2) at (1.5,-3) {$p_{2}$};
+\node[decision] (p3) at (1.5,-4) {$p_{3}$};
+
+% Unit Propagation Column
+\node[unit] at (3.5,0) {Unit Prop.};
+
+\node[unit] (p5) at (3.5,-2) {$\lnot p_{5}$};
+\node[unit] (p4) at (3.5,-4) {$p_{4}$};
+\node[unit] (contra) at (5.5, -4) {$\bot$};
+
+% Arrows for Unit Propagation
+\draw[arrow] (p1) to node[midway, above] {\footnotesize (6)} (p5);
+\draw[arrow] (p3) to node[midway, above] {\footnotesize (2)} (p4);
+\draw[arrow] (p5) to node[midway, right] {\footnotesize (2)} (p4);
+\draw[arrow] (p4) to node[midway, above] {\footnotesize (7)} (contra);
+\draw[arrow, bend right] (p3) to node[midway, below] {\footnotesize (7)} (contra);
+\draw[arrow, bend left] (p5) to node[midway, above right] {\footnotesize (7)} (contra);
+
+% Conflict Analysis
+\node[clause] (1-UIP Label) at (12.5,0) {1-UIP};
+\node[clause] (c7) at (10.5,-1.5) {$(\lnot p_{3} \vee \lnot p_{4} \vee p_{5})$};
+\node[above=0.15cm] at (c7) {\footnotesize (7)};
+\node[clause] (c2) at (14.5,-1.5) {$(\lnot p_{3} \vee p_{4} \vee p_{5})$};
+\node[above=0.15cm] at (c2) {\footnotesize (2)};
+\node[clause] (d1) at (12.5,-2.5) {$(\lnot p_{3} \vee \lnot p_{5})$};
+\node[below=0.15cm] (levels) at (d1) {\color{red} \footnotesize \underline{@3} \hspace{0.2cm} {@1}};
+\node[clause, label={[align=center]below: \footnotesize Go back to Dec=1}] (expl) at (12.5,-4) {\footnotesize 1-UIP, new clause (8)};
+
+% Arrows for conflict analysis
+\draw[-, thick] (c7) to (d1);
+\draw[-, thick] (c2) to (d1);
+\draw[arrow] (levels) to (expl);
+
+\end{tikzpicture}
+
+\vspace{0.5cm}
+
+\begin{tikzpicture}[
+    every node/.style={anchor=center},
+    level/.style={anchor=center},
+    decision/.style={anchor=center},
+    unit/.style={anchor=center},
+    clause/.style={anchor=center},
+    arrow/.style={->, thick, shorten >=1pt, shorten <=1pt}
+    ]
+
+% Level and Decisions
+\node[level] (Level Label) at (0,0) {Level};
+\node[level] (Level 0) at (0,-1) {0};
+\node[level] (Level 1) at (0,-2) {1};
+
+\node[decision] at (1.5,0) {Dec.};
+\node[decision] at (1.5,-1) {$\emptyset$};
+\node[decision] (p1) at (1.5,-2) {$p_{1}$};
+
+% Unit Propagation Column
+\node[unit] at (3.5,0) {Unit Prop.};
+
+\node[unit] (p5) at (3.5,-2) {$\lnot p_{5}$};
+\node[unit] (p3) at (5.5,-2) {$\lnot p_{3}$};
+\node[unit] (p4) at (5.5,-4) {$p_{4}$};
+\node[unit] (contra) at (7.5, -4) {$\bot$};
+
+% Arrows for Unit Propagation
+\draw[arrow] (p1) to node[midway, above] {\footnotesize (6)} (p5);
+\draw[arrow] (p5) to node[midway, above] {\footnotesize (8)} (p3);
+\draw[arrow, bend right] (p1) to node[midway, above] {\footnotesize (1)} (p4);
+\draw[arrow] (p3) to node[midway, right] {\footnotesize (1)} (p4);
+\draw[arrow, bend right] (p5) to node[midway, above right] {\footnotesize (1)} (p4);
+\draw[arrow, bend left] (p3) to node[midway, above right] {\footnotesize (3)} (contra);
+\draw[arrow] (p4) to node[midway, above] {\footnotesize (3)} (contra);
+\draw[arrow, bend right=70] (p1) to node[midway, below left] {\footnotesize (3)} (contra);
+
+% Conflict Analysis
+\node[clause] (1-UIP Label) at (12.5,0) {1-UIP};
+\node[clause] (c3) at (8.5,-1.5) {$(\lnot p_{1} \vee p_{3} \vee \lnot p_{4})$};
+\node[above=0.15cm] at (c3) {\footnotesize (3)};
+\node[clause] (c1) at (12,-1.5) {$(\lnot p_{1} \vee p_{3} \vee p_{4} \vee p_{5})$};
+\node[above=0.15cm] at (c1) {\footnotesize (1)};
+\node[clause] (c8) at (13.25, -2.75) {$(\lnot p_{3} \vee p_{5})$};
+\node[above=0.15cm] at (c8) {\footnotesize (8)};
+\node[clause] (c6) at (14.75, -4.25) {$(\lnot p_{1} \vee \lnot p_{5})$};
+\node[above=0.15cm] at (c6) {\footnotesize (6)};
+\node[clause] (d1) at (10.5,-2.75) {$(\lnot p_{1} \vee p_{3} \vee p_{5})$};
+\node[below=0.15cm] (levels) at (d1) {\tiny \hspace{0.1cm} \underline{@1} \hspace{0.2cm} \underline{@1} \hspace{0.18cm} \underline{@1}};
+\node[clause] (d2) at (12,-4.25) {$(\lnot p_{1} \vee p_{5})$};
+\node[clause] (d3) at (13.5,-5.25) {$(\lnot p_{1})$};
+
+\node[clause, label={[align=center]below: \footnotesize Go back to Dec=0}] (expl) at (13.5,-6.5) {\footnotesize 1-UIP, new clause (9)};
+
+% Arrows for conflict analysis
+\draw[-, thick] (c3) to (d1);
+\draw[-, thick] (c1) to (d1);
+\draw[-, thick] (levels) to (d2);
+\draw[-, thick] (c8) to (d2);
+\draw[-, thick] (d2) to (d3);
+\draw[-, thick] (c6) to (d3);
+\draw[arrow] (d3) to (expl);
+
+\end{tikzpicture}
+
+\vspace{1cm}
+
+\begin{tikzpicture}[
+    every node/.style={anchor=center},
+    level/.style={anchor=center},
+    decision/.style={anchor=center},
+    unit/.style={anchor=center},
+    clause/.style={anchor=center},
+    arrow/.style={->, thick, shorten >=1pt, shorten <=1pt}
+    ]
+
+% Level and Decisions
+\node[level] (Level Label) at (0,0) {Level};
+\node[level] (Level 0) at (0,-1) {0};
+
+\node[decision] at (1.5,0) {Dec.};
+\node[decision] (empty) at (1.5,-1) {$\emptyset$};
+
+% Unit Propagation Column
+\node[unit] at (3.5,0) {Unit Prop.};
+
+\node[unit] (p1) at (3.5,-1) {$\lnot p_{1}$};
+\node[unit] (p2) at (5.5,-1) {$p_{2}$};
+\node[unit] (contra) at (5.5, -3) {$\bot$};
+
+% Arrows for Unit Propagation
+\draw[arrow] (empty) to node[midway, above] {\footnotesize (9)} (p1);
+\draw[arrow] (p1) to node[midway, above] {\footnotesize (4)} (p2);
+\draw[arrow, bend right] (p1) to node[midway, above right] {\footnotesize (5)} (contra);
+\draw[arrow] (p2) to node[midway, right] {\footnotesize (5)} (contra);
+
+% Conflict Analysis
+\node[clause] (1-UIP Label) at (12,0) {1-UIP};
+\node[clause] (c5) at (9.5,-1.5) {$(p_{1} \vee \lnot p_{2})$};
+\node[above=0.15cm] at (c5) {\footnotesize (5)};
+\node[clause] (c4) at (12,-1.5) {$(p_{1} \vee p_{2})$};
+\node[above=0.15cm] at (c4) {\footnotesize (4)};
+\node[clause] (c9) at (14.5, -1.5) {$(\lnot p_{1})$};
+\node[above=0.15cm] at (c9) {\footnotesize (9)};
+\node[clause] (d1) at (10.5, -2.75) {$(p_{1})$};
+\node[clause] (d2) at (12, -4.25) {$\bot$};
+
+\node[clause] (expl) at (12,-5.5) {\footnotesize Derived $\emptyset \implies$ UNSAT};
+
+% Arrows for conflict analysis
+\draw[-, thick] (c5) to (d1);
+\draw[-, thick] (c4) to (d1);
+\draw[-, thick] (d1) to (d2);
+\draw[-, thick] (c9) to (d2);
+\draw[arrow] (d2) to (expl);
+
+\end{tikzpicture}
+
+\vspace{1cm}
+
+As we can see from the previous CDCL decision graphs, the formula $\phi$ is unsatisfiable.
+
 
 \section*{\wip Exercise 2}
 
@@ -59,11 +257,11 @@
 %   - Show benchmarks, and comment on growth of brute-force approach
 
 Two different encodings for the nonogram problem where implemented and tested.
-Both encodings follow the same structure -- encoding the entire problem is reduced to encoding a single line with restrictions.
+Both encodings follow the same structure — encoding the entire problem is reduced to encoding a single line with restrictions.
 The encoding of the entire problem is just the and of the encodings of all rows and columns.
-Let a line be a list of naturals, which denote the gaps that should exist in the line -- $l = [g_j, ..., g_{j'}]$.
+Let a line be a list of naturals, which denote the gaps that should exist in the line — $l = [g_j, \ldots, g_{j'}]$.
 A puzzle is a tuple $\langle H, V\rangle$, where both $H$ and $V$ a list of lines.
-The propositional formula that is the encoding of a line $l = [g_j, ..., g_{j'}]$ of size $s$ will be denoted $E(l, s)$.
+The propositional formula that is the encoding of a line $l = [g_j, \ldots, g_{j'}]$ of size $s$ will be denoted $E(l, s)$.
 The two approaches will differ precisely on how $E$ is defined.
 The encoding of the entire puzzle is
 
@@ -71,10 +269,10 @@ The encoding of the entire puzzle is
   $\bigwedge\limits_{l \in H} E(l, |V|) \wedge \bigwedge\limits_{l \in V} E(l, |H|)$
 \end{center}
 
-Both approaches will be a variable per cell in the grid (but one of them will have more variables). The variable for cell at row $i$ and column $j$ will be denoted $x_i_j$.
+Both approaches will be a variable per cell in the grid (but one of them will have more variables). The variable for cell at row $i$ and column $j$ will be denoted $x_{ij}$.
 At a high-level the first encoding uses a ``brute-force'' approach to solving the problem, by considering all possible placements of black regions in a given line.
 The second approach tries to avoid this by encoding directly the dependencies between black regions and the rules of the game.
-Having both approaches proved useful -- the brute-force one was easy to reason about and was used to debug the second approach.
+Having both approaches proved useful — the brute-force one was easy to reason about and was used to debug the second approach.
 In the following sub-sections, we will look in detail at how each encoding is made.
 
 \subsection*{``Brute-force'' approach}
@@ -129,12 +327,12 @@ In general, the list of all possible starts is given by the following function:
 \caption{Function to compute all possible start configurations}\label{alg:allPossible}
 \begin{algorithmic}
 \Function{AllPossible}{$gaps$, $size$}
-  \If{len($gaps$) = 1}
-    \State \Return $[ [i]: 0 \le i \le size - gaps_0]$
+  \If{len ($gaps$) = 1}
+    \State\Return$[ [i]: 0 \le i \le size - gaps_0]$
   \Else
-    \State $all = []$
+    \State$all = []$
     \For{$i = 0$ to $size - gaps_0$}
-      \State $o = start + g + 1$ \Comment{Offset of remaining starts}
+      \State$o = start + g + 1$ \Comment{Offset of remaining starts}
       \ForAll{$pos \in AllPossible(gaps[1..], size - o)$}
           \State $all.append([i] + [p + o: p \in pos])$
       \EndFor
@@ -165,8 +363,8 @@ A single start configuration can be encoded as follows:
 \subsection*{Polynomial approach}
 
 This approach attempts to encode not what are the possible combinations that result from the restrictions of the puzzle but the actual rules and restrictions of the nonogram game.
-For this, we require an extra set of variables - $c_i_j$ (note that when solving the entire puzzle, conditions for different lines are distinct and so must be given distinct names).
-For a given line, $c_i_j$ is intended to mean the gap $i$ was already placed when one gets to position $j$ (when considered from left to right). An ``ghost'' position at the end is considered for convinience (i.e. $c_i_{j}$ exists for $j = size$ as well).
+For this, we require an extra set of variables — $c_{ij}$ (note that when solving the entire puzzle, conditions for different lines are distinct and so must be given distinct names).
+For a given line, $c_{ij}$ is intended to mean the gap $i$ was already placed when one gets to position $j$ (when considered from left to right). An ``ghost'' position at the end is considered for convinience (i.e. $c_{ij}$ exists for $j = size$ as well).
 For instance, consider the following example.
 
 \begin{center}
@@ -185,8 +383,8 @@ For instance, consider the following example.
 \noindent The condition variables will take the following values
 
 \begin{align*}
-c_0_0 &= F & c_0_1 &= T & c_0_2 &= T & c_0_3 &= T & c_0_4 &= T & c_0_5 &= T \\
-c_1_0 &= F & c_1_1 &= F & c_1_2 &= F & c_1_3 &= F & c_1_4 &= T & c_1_5 &= T
+c_{00} &= F & c_{01} &= T & c_{02} &= T & c_{03} &= T & c_{04} &= T & c_{05} &= T \\
+c_{10} &= F & c_{11} &= F & c_{12} &= F & c_{13} &= F & c_{14} &= T & c_{15} &= T
 \end{align*}
 
 \noindent Having these extra variables will allow us to encode all the requirements we need. Unlike the previous approach we need to encode several things
@@ -240,7 +438,7 @@ For that a puzzle generator was implemented. The puzzle size was set to be the s
 
 As can be seen, the polynomial approach is slower for small puzzles, but as soon as the puzzle size reaches 25 it becomes the faster approach.
 
-Additionally, the percentage of time was analysed -- the results are in Figure~\ref{fig:util}
+Additionally, the percentage of time was analysed — the results are in Figure~\ref{fig:util}
 
 As expected, the initialization time dominates the solving time, especially for smaller problems.
 
