@@ -12,6 +12,7 @@
 *.xcp
 *.pdf
 *.cut
+*.lof
 *SAVE-ERROR
 *.pdfsync
 __pycache__
