@@ -46,33 +46,42 @@ def main():
     count = 10
     stats = []
 
-    values = [(5, 10), (2, 4)]
+    values = []
+    for size in range(4, 40, 2):
+        # Split size into two parts. You can adjust how they are divided if needed.
+        part1 = size // 2
+        part2 = size - part1
+        values.append((part1, part2))
 
-    for (width, height) in values:
-        this_stats = []
-        while len(this_stats) < count:
-            stat = bench_single(width, height)
-            stat["width"] = width
-            stat["height"] = height
-
-            this_stats += [stat]
-
-        stats += this_stats
+    print(f"The values are  {values}")
 
     # print to csv
     with open(filename, 'w') as fh:
-        fh.write("width, height, init, solving\n")
-        for stat in stats:
-            fh.write(f"{stat['width']}, {stat['height']}, {stat['init']}, {stat['solving']}\n")
+        fh.write("width, height, init, solving, mode\n")
+
+        for (width, height) in values:
+            for method in ["brute", "poly"]:
+                i = 0
+                while i < count:
+                    i += 1
+                    stat = bench_single(width, height, method)
+                    stat["width"] = width
+                    stat["height"] = height
+                    stat["method"] = method
+
+                    fh.write(f"{stat['width']}, {stat['height']}, {stat['init']}, {stat['solving']}, {stat['method']}\n")
 
 
-def bench_single(width, height):
+def bench_single(width, height, method):
     myoutputs = []
     while len(myoutputs) != 1:
         input, output = random_test(width, height)
         myoutputs = all_solutions(*input)
 
-    myoutput, stats = nonogram(*input, return_stats = True, show = False)
+    if method == "brute":
+        myoutput, stats = nonogram(*input, return_stats = True, show = False, constraints_for_line = constraints_for_line_brute)
+    else:
+        myoutput, stats = nonogram(*input, return_stats = True, show = False, constraints_for_line = constraints_for_line_poly)
 
     print(stats)
 

@@ -74,10 +74,6 @@ class TestWellPosed(unittest.TestCase):
             brute = well_posed(*input, constraints_for_line = constraints_for_line_brute)
             poly = well_posed(*input, constraints_for_line = constraints_for_line_poly)
 
-            if not (brute == poly):
-                print(input)
-                print(output)
-
             self.assertEqual(brute, poly)
 
 class TestAllSolutions(unittest.TestCase):

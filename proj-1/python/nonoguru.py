@@ -4,6 +4,9 @@ import time
 OFFICIAL_EXAMPLE = ([[2,1],[2,1,3],[7],[1,3],[2,1]], [[2],[2,1],[1,1],[3],[1,1],[1,1],[2],[1,1],[1,2],[2]])
 OFFICIAL_SOLUTION = [[False, True, True, False, False], [False, True, True, False, True], [False, False, True, False, True], [False, True, True, True, False], [True, False, True, False, False], [True, False, True, False, False], [False, False, True, True, False], [False, True, False, True, False], [False, True, False, True, True], [True, True, False, False, False]]
 
+TEST_1 = ([[1, 1], [1, 1], [1, 1], [2, 1], [1, 1, 2], [1]], [[1], [1], [5], [1], [2, 2], [1, 1]])
+TEST_1_SOL = [[False, False, False, False, True, False], [False, False, False, True, False, False], [True, True, True, True, True, False], [False, False, False, False, False, True], [True, True, False, True, True, False], [False, False, True, False, True, False]]
+
 def all_possible(gaps, size):
     """
     """
@@ -73,47 +76,68 @@ def constraints_for_line_poly(gaps, size, s, x, id = 0):
         # Ensure proper gaps
         for start in range(min_start, max_start + 1):
 
-            # Previous did not start completing and I want to start
-            # Also, previous gap should already have finished
             if i == 0:
+                # We're the first gap.
+                # To start completing the gap at `start`, we need to ensure:
+                #   - we haven't started completing the gap (not c[i][start+gap-1])
+                #   - the current cell is filled (x[start])
                 left = And(Not(c[i][start+gap-1]), x[start]) if start > 0 else x[start]
             else:
-                left = And(c[i-1][start], Not(c[i][start+gap-1]), x[start]) if start > 0 else x[start]
+                # We're past the first gap.
+                # To start completing the gap at `start`, we need to ensure:
+                #   - we haven't started completing the gap (not c[i][start+gap-1])
+                #   - the current cell is filled (x[start])
+                #   - previous gap has finished (c[i-1][start])
+                # FIXME: start -> start - 1 check
+                left = And(c[i-1][start-1], Not(c[i][start+gap-1]), x[start]) if start > 0 else x[start]
 
+            # Fill the rest of the gap
             remaining = And(list(map(lambda i: x[i], range(start+1, start+gap))))
 
+            # The slack are the cells that must necessarily be empty after the current gap
             if i < len(gaps) - 1:
-                # not last gap
+                # If not last gap, the slack is just the cell after the gap
                 slack = Not(x[start+gap])
             else:
+                # If last gap, the slack are all the remaining cells (starting from the end of the gap)
                 slack = And(list(map(lambda i: Not(x[i]), range(start+gap, size))))
 
             right = And([remaining, slack, c[i][start+gap]])
 
             s.add(Implies(left, right))
 
-        # add constraints implications
+        # If gap was placed by position start, then it was placed by position start+1
         for start in range(min_start, size):
             s.add(Implies(c[i][start], c[i][start+1]))
 
-        # add backpropagation
-        for j in range(min_start+1, size+1):
+        # Ensure that c[i][j] is only set to true for valid reason
+        # for j in range(min_start+1, size+1):
+        for j in range(min_start, size+1):
             # j is the empty cell
             # corresponding start is j - gap
             start = j - gap
+
             if start <= max_start:
-                remaining = And(list(map(lambda i: x[i], range(start, start+gap))))
-                s.add(Implies(c[i][j], Or(c[i][j-1], remaining)))
+                # If the position is within the allowed starts, then it can be filled:
+                #   - the previous was filled
+                #   - we just placed the gap
+                if j == size:
+                    gap_cells = And(list(map(lambda i: x[i], range(start, start+gap))))
+                else:
+                    gap_cells = And(list(map(lambda i: x[i], range(start, start+gap))))
+                s.add(Implies(c[i][j], Or(c[i][j-1], gap_cells)))
             else:
+                # If the position is not within the allowed starts, then the previous
+                # cell should the be reason why it was filled
                 s.add(Implies(c[i][j], c[i][j-1]))
 
-        # ensure completion
+        # Ensure all gaps are placed by the end
         s.add(c[i][size])
 
-        # all starts false
+        # Ensure the gap is not completed before start position
         s.add(And(list(map(lambda j: Not(c[i][j]), range(0, min_start+gap)))))
 
-        # ensure orderly completion
+        # Ensure orderly completion
         for k in range(0, max_start):
             if i < len(gaps) - 1:
                 next_gap = gaps[i+1]
@@ -252,6 +276,7 @@ def _nonogram(V, H, s, x, return_stats = False, constraints_for_line = constrain
 
     end = time.time()
 
+
     stats = {"init": middle-start, "solving": end-middle}
 
     bits = model_to_bitmap(s.model(), width, height) if ans == sat else []
@@ -317,7 +342,25 @@ def all_solutions(V, H, constraints_for_line = constraints_for_line_poly):
     return solutions
 
 def main():
-     nonogram(*OFFICIAL_EXAMPLE, show = True, constraints_for_line = constraints_for_line_brute)
+     # nonogram(*OFFICIAL_EXAMPLE, show = False, constraints_for_line = constraints_for_line_brute)
+     # all_solutions(*TEST_1, constraints_for_line = constraints_for_line_brute)
+    s, xs = gen_z3(6, 6)
+    constraints_for_line_poly([1, 1], 6, s, xs[0])
+
+    s.add(Not(And([xs[0][1], xs[0][4]])))
+    s.add(Not(And([xs[0][0], xs[0][4]])))
+    s.add(Not(And([xs[0][1], xs[0][5]])))
+    s.add(Not(And([xs[0][1], xs[0][3]])))
+    s.add(Not(And([xs[0][0], xs[0][5]])))
+    s.add(Not(And([xs[0][0], xs[0][3]])))
+
+    s.check()
+    m = s.model()
+    res = []
+    for t in m.decls():
+        if is_true(m[t]):
+            res += [str(t)]
+    print('\n'.join(sorted(res)))
 
 if __name__ == "__main__":
     main()
