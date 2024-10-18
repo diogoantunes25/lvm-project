@@ -73,7 +73,7 @@ def constraints_for_line_poly(gaps, size, s, x, id = 0):
         min_start = sum(gaps[:i]) + len(gaps[:i])
         max_start = size - (sum(gaps[i:]) + len(gaps[i+1:]))
 
-        # Ensure proper gaps
+        # Ensure gaps are filled with the appropriate sizes
         for start in range(min_start, max_start + 1):
 
             if i == 0:
@@ -88,7 +88,6 @@ def constraints_for_line_poly(gaps, size, s, x, id = 0):
                 #   - we haven't started completing the gap (not c[i][start+gap-1])
                 #   - the current cell is filled (x[start])
                 #   - previous gap has finished (c[i-1][start])
-                # FIXME: start -> start - 1 check
                 left = And(c[i-1][start-1], Not(c[i][start+gap-1]), x[start]) if start > 0 else x[start]
 
             # Fill the rest of the gap
