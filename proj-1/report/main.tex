@@ -233,8 +233,7 @@ We backtrack to the variable with a largest decision level other than the curren
 
 As we can see from the previous CDCL decision graphs, the formula $\phi$ is unsatisfiable.
 
-
-\section*{\wip Exercise 2}
+\section*{Exercise 2}
 
 % Instructions:
 %   - Should include the encoding of the nonogram problem as a SAT problem
@@ -387,38 +386,51 @@ c_{00} &= F & c_{01} &= T & c_{02} &= T & c_{03} &= T & c_{04} &= T & c_{05} &= 
 c_{10} &= F & c_{11} &= F & c_{12} &= F & c_{13} &= F & c_{14} &= T & c_{15} &= T
 \end{align*}
 
-\noindent Having these extra variables will allow us to encode all the requirements we need. Unlike the previous approach we need to encode several things
+\noindent Having these extra variables will allow us to encode all the requirements we need. Unlike the previous approach we need to encode several rules, not just the solution.
 
 \begin{enumerate}
-  \item If a gap starts at $i$, then blah. This translates into the following conditions.
+  \item If the $i$-th gap starts at at position $s$, then we need to ensure that the following $gaps_i - 1$ positions are filled and that the next position is empty.
+      Additionally, we need to ensure that the we haven't starts completing this gap and that the previous one has already been completed -- which can be done using the constraint variables.
+      Two exceptions to this rule are required.
+      The first gap does not require the previous gap to be completed.
+      In last gap not only the cell after, but all cells up to the end (possibily zero) must be empty.
+      Only the general rule is presented:
+      \begin{center}
+        $\forall i, s: \neg c_{i}_{(s+gaps_i-1)} \wedge c_{(i-1)}_{(start-1)} \wedge x_s \implies c_{i}_{(s+gaps_i)} \wedge \bigwedge_{k=s}^{s+gaps_i-1} x_k \wedge \neg x_{s+gaps_i}$
+      \end{center}
+
+
+    \item The previous rule described how to complete the gap, but doesn't require that that is the only way to do that.
+          For that reason, we need to require that if a gap is complete by a given cell, then it was either just completed (which can be checked by looking at the values of $x$) or the previuos one was completed.
+          \begin{center}
+            $\forall i, j \ne 0: c_{i}_{j} \implies c_{i}_{(j-1)} \vee \bigwedge_{k=j-gaps_i}^{j-1} x_k$
+          \end{center}
+
+          For cells where the gap could never have started, a tigther condition can be specified
+          \begin{center}
+            $\forall i, j \ne 0: c_{i}_{j} \implies c_{i}_{(j-1)}$
+          \end{center}
+
+  \item We also specified that for a gap to start completing, then the previous should have completed, but again we didn't specify that if a gap hasn't completed, the next hasn't completed as well. In fact, we can be more strict, if a gap hasn't completed by a position $j$, then the following won't complete at $j$, nor at any position before $j+nextGap$.
+
   \begin{center}
-    $a = b$
+    $\forall i \ne |gaps|-1, 0 \le k < maxStart(gaps_i): \neg c_i_{(k+gaps_i)} \implies \bigwedge_k^{k+gaps_i+1} \neg c_{(i+1)}_{(j + gaps_{i+1})}$
   \end{center}
 
-  \item The completion of a gap should propagate to the right
+  \item If a given gap is completed by position $s$, then it is also completed at position $s+1$.
   \begin{center}
-    $a = b$
+    $\forall i, 0 \le s \le size: (c_i_s \implies c_{(i+1)}_s) $
   \end{center}
 
-  \item A gap at a position can only be complete if the appropriate cells where painted black or if the gap was completed before
+  \item Before a gap reaches the minimum position where it can be completed, the completion variables must be false. This represents the start condition.
   \begin{center}
-    $a = b$
-  \end{center}
-
-  \item Gaps must be completed in order, i.e. there's a cooldown.
-  \begin{center}
-    $a = b$
-  \end{center}
-
-  \item At the start nothing is completed.
-  \begin{center}
-    $a = b$
+    $\forall i, 0 \le s \le minStart(gaps_i)+gaps_i: \neg c_i_{size}$
   \end{center}
 
   \item At the end everything should be completed.
 
   \begin{center}
-    $a = b$
+    $\forall i, c_i_{size}$
   \end{center}
 \end{enumerate}
 
@@ -429,7 +441,7 @@ As can be seen, at no point all possible combinations are considered. For that r
 In this section we compare the two approaches described previously.
 For that a puzzle generator was implemented. The puzzle size was set to be the sum of the number of rows and columns. For each puzzle size, a puzzle is generated and then both approaches are used to solve it -- both the initialization time and the SAT solving time are measured. This is repeated 100 times. The results can be seen in Figure~\ref{fig:bench}.
 
-\begin{figure}[h]
+\begin{figure}[H]
   \includegraphics[scale=0.5]{bench.png}
   \centering
   \caption{Execution time for both algorithms proposed}
@@ -442,7 +454,7 @@ Additionally, the percentage of time was analysed — the results are in Figure~
 
 As expected, the initialization time dominates the solving time, especially for smaller problems.
 
-\begin{figure}[h]
+\begin{figure}[H]
   \includegraphics[scale=0.5]{util.png}
   \centering
   \caption{Percentage of time spent in SAT solver}
