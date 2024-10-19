@@ -301,7 +301,7 @@ For instance, if $l = [1, 2]$ for a line of size 5, the possible configurations 
 \end{center}
 
 Given the constraints of the puzzle, there are positions on the line that a given gap cannot start at.
-To rule-out the impossible starting positions it will be useful to define the minimum and maximum start positions for a gap $i$.
+To rule out the impossible starting positions, it will be useful to define the minimum and maximum start positions for a gap $i$.
 
 \begin{center}
   $minStart(gaps_i) = \sum_{j = 0}^{i-1}(gaps_{j}+ 1)$ \\
