@@ -51,8 +51,8 @@ The first exercise was to solve the CNF-SAT $\phi$ formula with the following co
 \vspace{0.5cm}
 
 This was done using CDCL with 1-UIP (Unit Implication Point) as the conflict analysis strategy.
-When going through conflict clauses, if a clause with only one literal that is assigned at the current level is encountered, then the 1-UIP has been found.
-In this can, there's a backtrack to the variable with a largest decision level other than the current.
+When going through conflict clauses, if a clause with only one literal assigned at the current level is encountered, then the 1-UIP has been found.
+In this case, there's a backtrack to the variable with the largest decision level other than the current.
 
 \vspace{0.5cm}
 
@@ -231,7 +231,7 @@ In this can, there's a backtrack to the variable with a largest decision level o
 
 \vspace{1cm}
 
-As it can be seen from the previous CDCL decision graphs, the formula $\phi$ is unsatisfiable.
+As can be seen from the previous CDCL decision graphs, the formula $\phi$ is unsatisfiable.
 
 \section*{Exercise 2}
 
@@ -242,7 +242,7 @@ Both follow the same structure -- encoding the puzzle is reduced to encoding a s
 The first encoding is a ``brute-force'' approach that considers all possible placements of black squares in a given line.
 Consecutive black squares will be called a \textit{gap} hereinafter.
 
-The second encoding avoids the combinatorial blow-up in the number of possible configurations by directly expressing the rules of the puzzle as SAT constraints.
+The second encoding avoids the combinatorial blow-up in the number of possible configurations by directly expressing the puzzle rules as SAT constraints.
 
 Both approaches proved to be useful because, despite being slower, the brute-force approach is easier to reason about and was used to debug the more efficient one.
 
@@ -262,7 +262,7 @@ The encoding of the entire puzzle is
 
 \subsection*{``Brute-force'' approach}
 
-As was briefly mentioned before, the first and simpler approach to encode a single line is to consider all the possible placements of the gaps on a given line.
+As was briefly mentioned before, the first and simpler approach to encoding a single line is to consider all the possible placements of the gaps on a given line.
 For instance, if $l = [1, 2]$ for a line of size 5, the possible configurations are the following:
 
 \begin{center}
@@ -352,7 +352,7 @@ At this point, encoding a single line is straightforward -- it will be the disju
   $E(l, s) = \bigvee_{starts \in AllPossible(l, s)} E(starts, l)$
 \end{center}
 
-Even though this solution is clearly correct and simple, its asymptotic complexity is not satisfactory -- as the number of gaps grows, the number of possible combinations increases very quickly.
+Even though this solution is correct and simple, its asymptotic complexity is not satisfactory -- as the number of gaps grows, the number of possible combinations increases very quickly.
 If there are $k$ gaps in a line of size $s$, the number of possible combinations is $\mathcal{O}(s^k)$.\footnote{This is somewhat of an overestimation, as the gaps are placed between the minimum and maximum positions.}
 
 \subsection*{Polynomial approach}
@@ -388,7 +388,7 @@ A line can be encoded by encoding the puzzle restrictions as follows:
 \begin{enumerate}
   \item The most natural rule concerns how to fill in gaps given their sizes.
         In particular, if the $i$-th gap starts at position $s$, then the following $gaps_i - 1$ positions are filled and the position after that is empty.
-        Additionally, it's required that the gap hasn't already started being filled and that the previous one has already been completed, which can be expressed using the constraint variables.
+        Additionally, it's required that the gap hasn't already started being filled and the previous one has already been completed, which can be expressed using the constraint variables.
         However, there are two exceptions to this rule.
         The first gap does not require the previous gap to be completed and for the last gap not only the cell after, but all cells up to the end (possibly zero) must be empty.
         Only the general rule is presented:
@@ -397,7 +397,7 @@ A line can be encoded by encoding the puzzle restrictions as follows:
         \end{center}
 
 
-    \item The previous rule described how to complete a gap, but it doesn't require that that is the only way to do that.
+    \item The previous rule described how to complete a gap, but it doesn't require that that is the only way.
           To fix that, it's required that if a gap is completed by a given cell, then it was either just completed (which can be checked by looking at the values of $x$) or it was already completed by the previous cell.
           \begin{center}
             $\forall i, j \ne 0: c_{i}_{j} \implies c_{i}_{(j-1)} \vee \bigwedge_{k=j-gaps_i}^{j-1} x_k$
@@ -408,13 +408,13 @@ A line can be encoded by encoding the puzzle restrictions as follows:
             $\forall i, j \ne 0: c_{i}_{j} \implies c_{i}_{(j-1)}$
           \end{center}
 
-  \item It has already been specified that for a gap to start being filled in, the previous one should have already been completed. However, it hasn't been specified that if a gap isn't completed, then the next one is not completed as well. In fact, a more strict constraint is included -- if a gap hasn't completed by a position $j$, then the following won't complete at $j$, nor at any position before $j+nextGap$.
+  \item It has already been specified that for a gap to start being filled in, the previous one should have already been completed. However, it hasn't been specified that if a gap isn't completed, then the next one is not completed as well. In fact, a more strict constraint is included -- if a gap hasn't been completed by a position $j$, then the following gap also won't have been completed by $j$, nor by any position before $j+nextGap$.
 
   \begin{center}
     $\forall i \ne |gaps|-1, 0 \le k < maxStart(gaps_i): \neg c_i_{(k+gaps_i)} \implies \bigwedge_k^{k+gaps_i+1} \neg c_{(i+1)}_{(j + gaps_{i+1})}$
   \end{center}
 
-  \item If a given gap is completed by position $s$, then it is also completed by position $s+1$.
+  \item If a gap is completed by position $s$, then it is also completed by position $s+1$.
   \begin{center}
     $\forall i, 0 \le s \le size: (c_i_s \implies c_{(i+1)}_s) $
   \end{center}
@@ -424,7 +424,7 @@ A line can be encoded by encoding the puzzle restrictions as follows:
     $\forall i, 0 \le s \le minStart(gaps_i)+gaps_i: \neg c_i_{size}$
   \end{center}
 
-  \item At the end everything should be completed.
+  \item In the end, everything should be completed.
 
   \begin{center}
     $\forall i, c_i_{size}$
@@ -448,7 +448,7 @@ The results can be seen in Figure~\ref{fig:bench}. % TODO fix ref
 
 As can be expected, the polynomial approach is slower for smaller puzzles, but as soon as the puzzle size reaches size 25 it becomes the faster approach.
 
-In addition to this, the percentage of time spent at each state of the process was analysed.
+In addition to this, the percentage of time spent at each stage of the process was analyzed.
 The results of Figure~\ref{fig:util}, show that the initialization time dominates the solving time for all configurations tested but especially for smaller problems.
 As mentioned in the lectures, this could be solved by using the C API instead of the Python API for \texttt{z3} -- but this was considered to be out of the scope of this project.
 
