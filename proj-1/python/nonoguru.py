@@ -9,6 +9,7 @@ TEST_1_SOL = [[False, False, False, False, True, False], [False, False, False, T
 
 def all_possible(gaps, size):
     """
+    Returns all possible start configurations given the gaps and the line size.
     """
 
     if len(gaps) == 0:
@@ -32,7 +33,7 @@ def all_possible(gaps, size):
 
 def constraints_for_line_brute(gaps, size, s, x, id = 0):
     """
-    TBA
+    Adds to the model s all constraints for the provided line using the brute-force approach
     """
 
     valid_starts = []
@@ -64,7 +65,7 @@ def constraints_for_line_brute(gaps, size, s, x, id = 0):
 
 def constraints_for_line_poly(gaps, size, s, x, id = 0):
     """
-    TBA
+    Adds to the model s all constraints for the provided line using the polynomial approach
     """
 
     c = [[Bool(f"c_{id}_{j}_{i}") for i in range(size+1)] for j in range(len(gaps))]
@@ -120,10 +121,7 @@ def constraints_for_line_poly(gaps, size, s, x, id = 0):
                 # If the position is within the allowed starts, then it can be filled:
                 #   - the previous was filled
                 #   - we just placed the gap
-                if j == size:
-                    gap_cells = And(list(map(lambda i: x[i], range(start, start+gap))))
-                else:
-                    gap_cells = And(list(map(lambda i: x[i], range(start, start+gap))))
+                gap_cells = And(list(map(lambda i: x[i], range(start, start+gap))))
                 s.add(Implies(c[i][j], Or(c[i][j-1], gap_cells)))
             else:
                 # If the position is not within the allowed starts, then the previous
@@ -146,7 +144,7 @@ def constraints_for_line_poly(gaps, size, s, x, id = 0):
 
 def gen_z3(width, height):
     """
-    TBA
+    Creates z3 solver and cell variables
     """
 
     s = Solver()
@@ -156,13 +154,13 @@ def gen_z3(width, height):
 
 def transpose(x):
     """
-    TBA
+    Transposes matrix
     """
     return [[row[i] for row in x] for i in range(len(x[0]))]
 
 def model_to_bitmap(model, width, height):
     """
-    TBA
+    Converts the z3 provided model into a array of bits
     """
 
     bits = [[False for _ in range(width)] for _ in range(height)]
@@ -175,6 +173,9 @@ def model_to_bitmap(model, width, height):
     return bits
 
 def show_all(H, V, bits):
+    """
+    Auxiliary function to pretty print the puzzle
+    """
     max_h = max(len(h) for h in H)  # Maximum length of horizontal clues
     max_v = max(len(v) for v in V)  # Maximum length of vertical clues
     cell_width = 4  # Adjust cell width to match the grid width
@@ -211,6 +212,9 @@ def show_all(H, V, bits):
         print()  # Newline after each row
 
 def show_bits(bits):
+    """
+    Auxiliary function to pretty print a solution
+    """
     for row in bits:
         for value in row:
             if value:
@@ -221,7 +225,9 @@ def show_bits(bits):
 
 def nonogram(V, H, show = True, return_stats = False, constraints_for_line = constraints_for_line_poly):
     """
-    TBA
+    Function that givven two lists V and H of lists of positive integers, finds the solution for the corresponding
+    nonogram.
+    Can optionally print the solution or return statistics about execution.
     """
 
     width = len(V)
@@ -251,6 +257,8 @@ def _nonogram(V, H, s, x, return_stats = False, constraints_for_line = constrain
     Inputs:
     - V: vertical constraints
     - H: horizontal constraints
+    - s: the z3 solver
+    - x: the set of variables
     """
 
     start = time.time()
@@ -313,7 +321,10 @@ def well_posed(V, H, constraints_for_line = constraints_for_line_poly):
 
 def all_solutions(V, H, constraints_for_line = constraints_for_line_poly):
     """
-    TBA
+    Function that given two lists V and H of lists of positive integers, returns all solutions for the nonogram.
+    Inputs:
+    - V: vertical constraints
+    - H: horizontal constraints
     """
 
     width = len(V)
@@ -341,25 +352,7 @@ def all_solutions(V, H, constraints_for_line = constraints_for_line_poly):
     return solutions
 
 def main():
-     # nonogram(*OFFICIAL_EXAMPLE, show = False, constraints_for_line = constraints_for_line_brute)
-     # all_solutions(*TEST_1, constraints_for_line = constraints_for_line_brute)
-    s, xs = gen_z3(6, 6)
-    constraints_for_line_poly([1, 1], 6, s, xs[0])
-
-    s.add(Not(And([xs[0][1], xs[0][4]])))
-    s.add(Not(And([xs[0][0], xs[0][4]])))
-    s.add(Not(And([xs[0][1], xs[0][5]])))
-    s.add(Not(And([xs[0][1], xs[0][3]])))
-    s.add(Not(And([xs[0][0], xs[0][5]])))
-    s.add(Not(And([xs[0][0], xs[0][3]])))
-
-    s.check()
-    m = s.model()
-    res = []
-    for t in m.decls():
-        if is_true(m[t]):
-            res += [str(t)]
-    print('\n'.join(sorted(res)))
+    nonogram(*OFFICIAL_EXAMPLE, show = True, constraints_for_line = constraints_for_line_brute)
 
 if __name__ == "__main__":
     main()
