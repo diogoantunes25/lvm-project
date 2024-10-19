@@ -36,7 +36,7 @@
 
 \section*{Exercise 1}
 
-The first exercise consisted of solving the CNF-SAT $\phi$ formula with the next constraints:
+The first exercise required solving the CNF-SAT $\phi$ formula with the next constraints:
 
 \begin{align}
         & (\lnot p_{1} \vee p_{3} \vee p_{4} \vee p_{5}) \\
@@ -50,9 +50,9 @@ The first exercise consisted of solving the CNF-SAT $\phi$ formula with the next
 
 \vspace{0.5cm}
 
-For this, we used CDCL using 1-UIP (Unit Implication Point) as the conflict analysis strategy.
-When going through conflict clauses, if we arrive to a clause with only one literal that is assigned at the current level, we have found the 1-UIP.
-We backtrack to the variable with a largest decision level other than the current.
+This was done using CDCL with 1-UIP (Unit Implication Point) as the conflict analysis strategy.
+When going through conflict clauses, if a clause with only one literal that is assigned at the current level is encountered, then the 1-UIP has been found.
+In this can, there's a backtrack to the variable with a largest decision level other than the current.
 
 \vspace{0.5cm}
 
@@ -231,52 +231,38 @@ We backtrack to the variable with a largest decision level other than the curren
 
 \vspace{1cm}
 
-As we can see from the previous CDCL decision graphs, the formula $\phi$ is unsatisfiable.
+As can be seen from the previous CDCL decision graphs, the formula $\phi$ is unsatisfiable.
 
 \section*{Exercise 2}
 
-% Instructions:
-%   - Should include the encoding of the nonogram problem as a SAT problem
-% Structure:
-% - Two encodings were implemented
-% - High-level overview of the encodings
-%     - they share some of the structure (of encoding line by line)
-%       - explain how this works
-%       - In the following sections, we'll only talk about this simplified problem
-%     - we have a brute force one that is easier to believe the correctness of but that (has complexity X)
-%     - we have a more efficient one that is more complex but also uses less variables (has complexity Y)
-%     - from the debugging standpoint, having both implementations proved useful because we were able to use one
-% of the implementations to debug the other.
-% - ``Brute-force'' approach
-%   - One way is to consider all possible combinations
-% - Polynomial approach
-%   - Intuitively, a brute-force approach doesn't sound right
-% - Experimental evaluation
-%   - To understand what actually was better, we ran some benchmarks
-%   - Show benchmarks, and comment on growth of brute-force approach
+Two different encodings for the nonogram problem were implemented and tested.
+Both follow the same structure -- encoding the problem is reduced to encoding a single line (row or column).
 
-Two different encodings for the nonogram problem where implemented and tested.
-Both encodings follow the same structure — encoding the entire problem is reduced to encoding a single line with restrictions.
-The encoding of the entire problem is just the and of the encodings of all rows and columns.
-Let a line be a list of naturals, which denote the gaps that should exist in the line — $l = [g_j, \ldots, g_{j'}]$.
-A puzzle is a tuple $\langle H, V\rangle$, where both $H$ and $V$ a list of lines.
-The propositional formula that is the encoding of a line $l = [g_j, \ldots, g_{j'}]$ of size $s$ will be denoted $E(l, s)$.
-The two approaches will differ precisely on how $E$ is defined.
+At a high-level the first encoding is a ``brute-force'' approach that considers all possible placements of black regions in a given line.
+For the remaining of the document, a consecutive region of black cells will be called a \textit{gap}.
+
+The second approach sidesteps the combinatorial blow-up in the number of possible configurations by directly expressing the rules of the game as SAT constraints.
+
+% I think that this sentence is hard to read
+Having both approaches proved to be useful, because the brute-force despite being slower, is easier to reason about and was used to debug the second, more efficient approach.
+
+\subsection*{Reduction to encoding a single line}
+
+As mentioned, the problem of encoding the nonogram puzzle is reduced to the problem of encoding of a single line.
+In particular, the encoding of the puzzle will be the conjunction of the encoding of each row and column.
+
+Formally, a line is a list of naturals $l = [g_j, \ldots, g_{j'}]$ and a puzzle is a tuple $\langle H, V\rangle$, where both $H$ and $V$ are a list of lines.
+The encoding of a line $l = [g_j, \ldots, g_{j'}]$ of size $s$ is denoted $E(l, s)$ -- the two approaches differ in $E$'s definition.
 The encoding of the entire puzzle is
 
 \begin{center}
   $\bigwedge\limits_{l \in H} E(l, |V|) \wedge \bigwedge\limits_{l \in V} E(l, |H|)$
 \end{center}
 
-Both approaches will be a variable per cell in the grid (but one of them will have more variables). The variable for cell at row $i$ and column $j$ will be denoted $x_{ij}$.
-At a high-level the first encoding uses a ``brute-force'' approach to solving the problem, by considering all possible placements of black regions in a given line.
-The second approach tries to avoid this by encoding directly the dependencies between black regions and the rules of the game.
-Having both approaches proved useful — the brute-force one was easy to reason about and was used to debug the second approach.
-In the following sub-sections, we will look in detail at how each encoding is made.
 
 \subsection*{``Brute-force'' approach}
 
-As hinted at before, the first and simpler approach to encoding the constraints for a single line is to consider all possible placements of segments of the specified sizes on the line.
+As hinted at before, the first and simpler approach to encoding the constraints for a single line is to consider all possible placements of gaps of the specified sizes on the line.
 For instance, if $l = [1, 2]$ for a line of size 5, the possible configurations are the following:
 
 \begin{center}
@@ -314,13 +300,21 @@ For instance, if $l = [1, 2]$ for a line of size 5, the possible configurations 
 \end{tikzpicture}
 \end{center}
 
-\noindent Before defining the function, we need to define the minimum and maximum start positions for a given gap.
+Given the constraints of the problem, a given gap cannot start at any position in the line.
+To avoid considering positions which are impossible regardless of the remaining puzzle, it will be useful to define the minimum and maximum start positions for gap $i$.
 
-\noindent Given the constraints of the problem, a given gap cannot start at any position in the line.
-To avoid considering positions which are impossible regardless of the other constraints that might exist, a minimum and maximum start positions are defined.
-The miminum start position for gap $gaps_i$ is defined as $minStart(gaps_i) = \sum_{j = 0}^{i-1}(gaps_{j}+ 1)$. Similarly, the maximum start position for a gap $i$ is $maxStart(gaps_i) = size - g - \sum_{j=i+1}^{size}(gaps_{j} + 1)$.
+\begin{center}
+  $minStart(gaps_i) = \sum_{j = 0}^{i-1}(gaps_{j}+ 1)$ \\
+  $maxStart(gaps_i) = size - gaps_i - \sum_{j=i+1}^{size}(gaps_{j} + 1)$
+\end{center}
 
-In general, the list of all possible starts is given by the following function:
+The list of all possible starts for a line can be computed using the recursive function in Algorithm~\ref{alg:allPossible}.
+Here, a start configuration is a list of integers that mark where each gap should start.
+Given a configuration and the list of gaps, the set of filled positions is
+
+\begin{center}
+  $filled(starts, gaps) = \{j\ |\ \exists i: starts_i \le j < starts_i + gaps_i\}$.
+\end{center}
 
 \begin{algorithm}
 \caption{Function to compute all possible start configurations}\label{alg:allPossible}
@@ -342,29 +336,33 @@ In general, the list of all possible starts is given by the following function:
 \end{algorithmic}
 \end{algorithm}
 
-As can be seen, a start configuration is a list of integers that mark where each gap should start.
-Given a configuration and the list of gaps, the set of filled positions is $filled(starts, gaps) = \{j\ |\ \exists i: starts_i \le j \le starts_i + gaps_i\}$.
-
+To encode the puzzle, one variable per cell in the grid is needed.
+The variable for row $i$ and column $j$ will be denoted $x_i_j$.
+When looking at a single line one of the indexes doesn't change, and to simplify, variables will be denoted $x_i$.
 A single start configuration can be encoded as follows:
 
 \begin{center}
   $E(starts, gaps) = \bigwedge\limits_{i \in filled(starts, gaps)}x_i \wedge \bigwedge\limits_{i \notin filled(starts, gaps)} \neg x_i$
 \end{center}
 
-\noindent Given the list of all possible starts, the encoding is quite straightforward:
+At this point, encoding a single line is straightforward -- it will be the disjunction of the encoding of all possible starts.
 
 \begin{center}
   $E(l, s) = \bigvee_{starts \in AllPossible(l, s)} E(starts, l)$
 \end{center}
 
-\noindent As can be seen, the complexity of this approach is rather bad. As the number of gaps grows, the number of possible combinations is exponential. In particular, if there are $k$ gaps in a line of size $s$, the number of combinations is $\mathcal{O}(s^k)$ possibilities.\footnote{This is a bit of an overestimation, because we only place gaps between the minimum and maximum positions}
+Even though this solution is clearly correct and simple, its asymptotic complexity is not satisfactory -- as the number of gaps grows, the number of possible combinations increases very quickly.
+If there are $k$ gaps in a line of size $s$, the number of combinations is $\mathcal{O}(s^k)$ possibilities.\footnote{This is a bit of an overestimation, gaps are placed between the minimum and maximum positions}
 
 \subsection*{Polynomial approach}
 
-This approach attempts to encode not what are the possible combinations that result from the restrictions of the puzzle but the actual rules and restrictions of the nonogram game.
-For this, we require an extra set of variables — $c_{ij}$ (note that when solving the entire puzzle, conditions for different lines are distinct and so must be given distinct names).
-For a given line, $c_{ij}$ is intended to mean the gap $i$ was already placed when one gets to position $j$ (when considered from left to right). An ``ghost'' position at the end is considered for convinience (i.e. $c_{ij}$ exists for $j = size$ as well).
-For instance, consider the following example.
+To improve on the previous solution, instead of encoding all possible combinations that result from the game restrictions, the restrictions themselves are encoded.
+For this, the encoding will include one variable per cell -- $x_i_j$ and, for each line, an extra set of variables -- $c_k_i_j$.
+For a given line $k$, $c_k_i_j$ represents whether the gap $i$ was already placed by position $j$ (going left to right).
+A ``ghost'' position at the end is considered for convenience.
+As before, when looking at a single line, $x_i$ replaces $x_i_j$ and $c_i_j$ replaces $c_k_i_j$.
+
+As an example, consider the following configuration for a line of size 5:
 
 \begin{center}
 \begin{tikzpicture}
@@ -379,39 +377,37 @@ For instance, consider the following example.
 \end{tikzpicture}
 \end{center}
 
-\noindent The condition variables will take the following values
-
+The condition variables will take the following values:
 \begin{align*}
 c_{00} &= F & c_{01} &= T & c_{02} &= T & c_{03} &= T & c_{04} &= T & c_{05} &= T \\
 c_{10} &= F & c_{11} &= F & c_{12} &= F & c_{13} &= F & c_{14} &= T & c_{15} &= T
 \end{align*}
 
-\noindent Having these extra variables will allow us to encode all the requirements we need. Unlike the previous approach we need to encode several rules, not just the solution.
-
+A line can be encoded by encoding the game restrictions as follows:
 \begin{enumerate}
-  \item If the $i$-th gap starts at at position $s$, then we need to ensure that the following $gaps_i - 1$ positions are filled and that the next position is empty.
-      Additionally, we need to ensure that the we haven't starts completing this gap and that the previous one has already been completed -- which can be done using the constraint variables.
-      Two exceptions to this rule are required.
-      The first gap does not require the previous gap to be completed.
-      In last gap not only the cell after, but all cells up to the end (possibily zero) must be empty.
-      Only the general rule is presented:
-      \begin{center}
-        $\forall i, s: \neg c_{i}_{(s+gaps_i-1)} \wedge c_{(i-1)}_{(start-1)} \wedge x_s \implies c_{i}_{(s+gaps_i)} \wedge \bigwedge_{k=s}^{s+gaps_i-1} x_k \wedge \neg x_{s+gaps_i}$
-      \end{center}
+  \item The most natural rule concerns how to fill in gaps given their sizes.
+        In particular, if the $i$-th gap starts at at position $s$, then the following $gaps_i - 1$ positions are filled and the next position is empty.
+        Additionally, it's required that the gap hasn't started completing and that the previous one has already been completed, which can be expressed using the constraint variables.
+        Two exceptions to this rule are required.
+        The first gap does not require the previous gap to be completed and for the last gap not only the cell after, but all cells up to the end (possibly zero) must be empty.
+        Only the general rule is presented:
+        \begin{center}
+          $\forall i, s: \neg c_{i}_{(s+gaps_i-1)} \wedge c_{(i-1)}_{(start-1)} \wedge x_s \implies c_{i}_{(s+gaps_i)} \wedge \bigwedge_{k=s}^{s+gaps_i-1} x_k \wedge \neg x_{s+gaps_i}$
+        \end{center}
 
 
     \item The previous rule described how to complete the gap, but doesn't require that that is the only way to do that.
-          For that reason, we need to require that if a gap is complete by a given cell, then it was either just completed (which can be checked by looking at the values of $x$) or the previuos one was completed.
+          To fix that, it's required that if a gap is completed by a given cell, then it was either just completed (which can be checked by looking at the values of $x$) or the previous one was completed.
           \begin{center}
             $\forall i, j \ne 0: c_{i}_{j} \implies c_{i}_{(j-1)} \vee \bigwedge_{k=j-gaps_i}^{j-1} x_k$
           \end{center}
 
-          For cells where the gap could never have started, a tigther condition can be specified
+          For cells where the gap could never have ended, a tighter condition can be specified
           \begin{center}
             $\forall i, j \ne 0: c_{i}_{j} \implies c_{i}_{(j-1)}$
           \end{center}
 
-  \item We also specified that for a gap to start completing, then the previous should have completed, but again we didn't specify that if a gap hasn't completed, the next hasn't completed as well. In fact, we can be more strict, if a gap hasn't completed by a position $j$, then the following won't complete at $j$, nor at any position before $j+nextGap$.
+  \item It has already been specified that for a gap to start completing, the previous should have completed. However, it wasn't specified that if a gap hasn't completed, the next hasn't completed as well. In fact, a more strict constraint is include -- if a gap hasn't completed by a position $j$, then the following won't complete at $j$, nor at any position before $j+nextGap$.
 
   \begin{center}
     $\forall i \ne |gaps|-1, 0 \le k < maxStart(gaps_i): \neg c_i_{(k+gaps_i)} \implies \bigwedge_k^{k+gaps_i+1} \neg c_{(i+1)}_{(j + gaps_{i+1})}$
@@ -434,12 +430,13 @@ c_{10} &= F & c_{11} &= F & c_{12} &= F & c_{13} &= F & c_{14} &= T & c_{15} &= 
   \end{center}
 \end{enumerate}
 
-As can be seen, at no point all possible combinations are considered. For that reason, at most a polynomial amount of restrictions are added.
-
 \subsection*{Evaluation}
 
-In this section we compare the two approaches described previously.
-For that a puzzle generator was implemented. The puzzle size was set to be the sum of the number of rows and columns. For each puzzle size, a puzzle is generated and then both approaches are used to solve it -- both the initialization time and the SAT solving time are measured. This is repeated 100 times. The results can be seen in Figure~\ref{fig:bench}.
+Even though the second approach was more promising, it could be the case that constants hidden by the $\mathcal{O}$-notation or some heuristics that could be applied only for the first approach made the ``brute-force'' solution more practical.
+To understand whether this was the case, a puzzle generator was implemented.
+The puzzle size is the sum of the number of rows and columns.
+For each puzzle size, 10 puzzles are generated and then both approaches are used to solve it and both the initialization time and the SAT solving time are measured.
+The results can be seen in Figure~\ref{fig:bench}.
 
 \begin{figure}[H]
   \includegraphics[scale=0.5]{bench.png}
@@ -448,21 +445,17 @@ For that a puzzle generator was implemented. The puzzle size was set to be the s
   \label{fig:bench}
 \end{figure}
 
-As can be seen, the polynomial approach is slower for small puzzles, but as soon as the puzzle size reaches 25 it becomes the faster approach.
+As can be expected, the polynomial approach is slower for smaller puzzles, but as soon as the puzzle size reaches size 25 it becomes the faster approach.
 
-Additionally, the percentage of time was analysed — the results are in Figure~\ref{fig:util}
-
-As expected, the initialization time dominates the solving time, especially for smaller problems.
+In addition to this, the percentage of time spent at each state of the process was analysed.
+The results of Figure~\ref{fig:util}, show that the initialization time dominates the solving time for all configurations tested but especially for smaller problems.
+As mentioned in the lectures, this could be solved by using the C API instead of the Python API for \texttt{z3} -- this was considered to be out of the scope of the project.
 
 \begin{figure}[H]
   \includegraphics[scale=0.5]{util.png}
   \centering
   \caption{Percentage of time spent in SAT solver}
-  \label{fig:bench}
+  \label{fig:util}
 \end{figure}
-
-% TODO: say more stuff
-
-% \listoffigures
 
 \end{document}
