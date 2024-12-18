@@ -4,4 +4,3 @@ Please refer to project specific README files:
 
 - [Project 1](./proj-1/README.md)
 - [Project 2](./proj-2/README.md)
-- [Project 3](./proj-3/README.md)
