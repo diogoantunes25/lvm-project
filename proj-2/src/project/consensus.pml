@@ -1,6 +1,6 @@
 #define N 4
 #define T 1
-#define c(i,j) _c[(i)*N + (j)]
+#define c(i,j) _c[(i)*(N+T) + (j)]
 
 #define done (outputs[0] != 2 && outputs[1] != 2 && outputs[2] != 2 && outputs[3] != 2)
 #define sameOutputs (outputs[0] == outputs[1] && outputs[1] == outputs[2] && outputs[2] == outputs[3])
@@ -16,7 +16,7 @@ ltl termination { <>done }
 
 // c(i,j) is to send messages from i to j
 // there's no point in sending values to byz
-chan _c[(N+T)*N] = [1] of {bit};
+chan _c[(N+T)*(N+T)] = [1] of {bit};
 bit inputs[N];
 bit outputs[N];
 
@@ -38,8 +38,8 @@ proctype reliable(int id) {
       atomic {
         i = 0;
         do
-        :: i < N -> c(id-1,i) ! v; i++;
-        :: i == N -> break;
+        :: i < N+T -> c(id-1,i) ! v; i++;
+        :: i == N+T -> break;
         od;
       };
 
@@ -63,13 +63,13 @@ proctype reliable(int id) {
       atomic {
         i = 0;
         do
-        :: i < N -> if
+        :: i < N+T -> if
                       :: id == round && (zeros > (N+T) - zeros)   -> c(id-1,i) ! 0;
                       :: id == round && (zeros <= (N+T) - zeros)  -> c(id-1,i) ! 1;
                       :: else -> skip
                       fi;
                       i++
-        :: i == N -> break;
+        :: i == N+T -> break;
         od;
       };
 
@@ -98,6 +98,7 @@ proctype reliable(int id) {
 proctype faulty(int id) {
   byte round = 1;
   byte i;
+  bit dummy;
   do
   :: round > T + 1 -> break
   :: round <= T + 1 ->
@@ -116,51 +117,16 @@ proctype faulty(int id) {
         :: i == N -> break;
         od;
 
+        i = 0
+      };
+
 
         // 1.2 read values and ignore
         // nop
-        /*
-        i = 0
-        do
-        :: i < N+T -> if
-                      :: c(i,id-1) ? 0 -> skip
-                      :: c(i,id-1) ? 1 -> skip
-                      fi;
-                      i++
-        :: i == N+T -> break;
-        od;
-        */
-
-        // Part 2
-
-        // 2.1 If round node send any value
-        // never is round node, so it's a nop
-        /*
-        i = 0;
-        do
-        :: i < N -> if
-                      :: id == round -> c(id-1,i) ! 0;
-                      :: id == round -> c(id-1,i) ! 1;
-                      :: else -> skip
-                      fi;
-                      i++
-        :: i == N -> break;
-        od;
-        */
-
-        // 2.2 Read the value and ignore
-        // nop
-        /*
-        if
-        :: c(round-1,id-1) ? 0 -> skip;
-        :: c(round-1,id-1) ? 1 -> skip;
-        fi;
-        */
-
-        // 2.3 Nop
-
-        round++
-      };
+      do
+      :: i < N+T -> atomic { c(i,id-1) ? dummy; i++ }
+      :: i == N+T -> atomic { c(round-1,id-1) ? dummy; round++; break; } // entire part 2
+      od;
   od;
 
 }
