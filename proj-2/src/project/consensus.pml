@@ -3,8 +3,11 @@
 #define c(i,j) _c[(i)*(N+T) + (j)]
 
 #define done (outputs[0] != 2 && outputs[1] != 2 && outputs[2] != 2 && outputs[3] != 2)
-#define sameOutputs (outputs[0] == outputs[1] && outputs[1] == outputs[2] && outputs[2] == outputs[3])
-#define sameInputs (inputs[0] == inputs[1] && inputs[1] == inputs[2] && inputs[2] == inputs[3])
+
+#define sameInVector(vec) (vec[0] == vec[1] && vec[1] == vec[2] && vec[2] == vec[3])
+#define sameOutputs sameInVector(outputs)
+#define sameInputs sameInVector(inputs)
+#define sameVs sameInVector(v)
 
 // (for reliable only) memory limit set to 8000 and -O2 -DNFAIR=3 -DCOLLAPSE as compiler flags
 ltl agreement { [] (done -> sameOutputs)}
@@ -12,20 +15,26 @@ ltl agreement { [] (done -> sameOutputs)}
 // (for reliable only) memory limit set to 8000 and -O2 -DNFAIR=3 -DCOLLAPSE as compiler flags
 ltl validity { [] ((done && sameInputs) -> sameOutputs) }
 
+ltl validity_strong { [] ((sameInputs && started) -> (sameVs && (done -> sameOutputs))) }
+
 ltl termination { <>done }
 
 // c(i,j) is to send messages from i to j
 // there's no point in sending values to byz
-chan _c[(N+T)*(N+T)] = [1] of {bit};
+// chan _c[(N+T)*(N+T)] = [1] of {bit};
+// FIXME: get tighter bound
+chan _c[(N+T)*(N+T)] = [(T+1)*2] of {bit};
 bit inputs[N];
 bit outputs[N];
+bit v[N];
+bit started = 0;
 
 proctype reliable(int id) {
-  bit v = inputs[id-1];
+  v[id-1] = inputs[id-1];
   bit ithMajority;
   byte zeros; // number of zeros received
   byte i;
-  printf("[%d] starting with value = %d\n", id, v)
+  printf("[%d] starting with value = %d\n", id, v[id-1])
   byte round = 1;
   do
   :: round > T + 1 -> break
@@ -38,7 +47,7 @@ proctype reliable(int id) {
       atomic {
         i = 0;
         do
-        :: i < N+T -> c(id-1,i) ! v; i++;
+        :: i < N+T -> c(id-1,i) ! v[id-1]; i++;
         :: i == N+T -> break;
         od;
       };
@@ -80,18 +89,18 @@ proctype reliable(int id) {
 
         // 2.3 If it found N with same value, then update v to that value else use ithMajority
         if
-        :: zeros >= N -> v = 0
-        :: (N+T)-zeros >= N -> v = 1
-        :: else -> v = ithMajority;
+        :: zeros >= N -> v[id-1] = 0
+        :: (N+T)-zeros >= N -> v[id-1] = 1
+        :: else -> v[id-1] = ithMajority;
         fi;
-        printf("[%d] setting v to %d\n", id, v);
+        printf("[%d] setting v to %d\n", id, v[id-1]);
         round++
       }
   od;
 
   atomic {
-    printf("[%d] My value is %d\n", id, v);
-    outputs[id-1] = v;
+    printf("[%d] My value is %d\n", id, v[id-1]);
+    outputs[id-1] = v[id-1];
   }
 }
 
@@ -138,20 +147,22 @@ init {
   i = 0;
   do
   :: i < N ->  if
-                :: true -> inputs[i] = 0; printf("[%d] My input is 0\n", i)
-                :: true -> inputs[i] = 1; printf("[%d] My input is 1\n", i)
+                :: true -> inputs[i] = 0; v[i] = 0; printf("[%d] My input is 0\n", i)
+                :: true -> inputs[i] = 1; v[i] = 1; printf("[%d] My input is 1\n", i)
                 fi;
                 outputs[i] = 2; // some invalid output for termination
                 i++
   :: else -> break;
-  od
+  od;
 
   // Start processes
-  i = 1;
-  do
-  :: i <= N -> run reliable(i); i++
-  :: i > N && i <= N+T -> run faulty(i); i++
-  // :: i > N && i <= N+T -> run reliable(i); i++
-  :: else -> break;
-  od
+  atomic {
+    i = 1;
+    do
+    :: i <= N -> run reliable(i); i++
+    :: i > N && i <= N+T -> run faulty(i); i++
+    :: else -> break;
+    od
+    started = 1;
+  };
 }
