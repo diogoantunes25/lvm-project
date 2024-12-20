@@ -1,2 +1,5 @@
 pan.*
 *.tmp
+*.ps
+.project
+*.trail
