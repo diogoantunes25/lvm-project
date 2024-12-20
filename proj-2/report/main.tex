@@ -1,0 +1,165 @@
+\documentclass[12pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amsthm,amssymb}
+
+\usepackage{graphicx}
+\usepackage{enumitem}
+
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+
+\usepackage{tikz}
+
+\usepackage{xcolor}
+\definecolor{darkgreen}{rgb}{0.0, 0.4, 0.0}
+\definecolor{darkyellow}{rgb}{1.0, 0.5, 0.0}
+
+\newcommand{\wip}{\textbf{(WIP) }}
+\newcommand{\tba}{\textbf{(TBA) }}
+
+
+\newcommand{\idea}[1]{\textcolor{darkyellow}{#1}}
+\newcommand{\drafter}[1]{\textcolor{darkgreen}{#1}}
+\newcommand{\draft}[1]{\textcolor{purple}{#1}}
+\newcommand{\sad}[1]{\textcolor{red}{#1}}
+\newcommand{\blah}{\textbf{blah blah blah}}
+
+\newcommand{\dsa}[1]{\textbf{[DSA: #1]}}
+
+\begin{document}
+
+\title{Project 2 — Report}
+\author{
+  Diogo Antunes\\
+  99210
+  \and
+  Javier María\\
+  99240
+  \and
+  Tomás Silva\\
+  98973
+}
+
+\maketitle
+
+\section*{Exercise 1}
+
+\subsection*{Exercise 1.1}
+
+\subsubsection*{Exercise 1.1 (a)}
+
+\idea{The justification is as expectd -- the safisfiable formulas is proven with \blah{}.}
+\idea{The unsatisfiable formulas are proven by providing a trace of the transition system that does not satisfy the formula.}
+
+\begin{enumerate}[label=\roman*.]
+  \item $\mathsf{F}~\mathsf{G}~c$ -- not satisfied
+
+  \idea{The trace is $s_2 (s_4 s_3)^\omega$.}
+
+  \item $\mathsf{G}~\mathsf{F}~c$ -- satisfied
+
+  \blah{}
+
+  \item $(\mathsf{X}\neg~c) \rightarrow (\mathsf{X}~\mathsf{X}~c)$ -- satisfied
+
+  \blah{}
+
+  \item $\mathsf{G}~a$ -- not satified
+
+  \idea{The trace is $s_1 s_4 s_5^{\omega}$.}
+
+  \item $a~\mathsf{U}~\mathsf{G}(b \vee c)$ -- satisfied
+
+  \blah{}
+
+\end{itemize}
+
+% TODO: add proofs / counter example
+
+\subsubsection*{Exercise 1.1 (b)}
+
+\idea{The modeling of the system in Promela was not trivial for two reasons -- modeling the possibility of multiple initial states and avoiding the effect of stutter steps in the use of the next operator in $c$.}
+\idea{The first problem was solved by adding a flag to signal the start of the system.}
+\idea{To ensure that the LTL formulas refered to the inital state of the transition system being modelled and not Promela, the formula $\Phi$ is modified to $\neg started~\mathsf{U}~(started~\wedge~\Phi).$}
+\idea{Additionally, the use of stutter-steps by Promela also posed problems when trying to model things like using the next operator.}
+\idea{This is because next operator of Promela won't match the next operator of the state machine being.}
+\idea{To solve this a flag that is toggled on every state transition and to the next only applies if the flag is toggled.}
+\idea{With this rewrite, the LTL formulas are encoded in the following way.}
+
+\idea{The last bullet showed that i. and iv. are not satisfied and Spin confirms this.}
+\idea{The traces are the following. The complete are provided in a separate text file \blah{}.}
+
+\subsection*{Exercise 1.2}
+
+% TODO: add proofs / counter example
+
+\section*{Exercise 2}
+
+\subsection*{Exercise 2.1}
+
+\idea{The encoding of properties provided is the following (this is also in file \texttt{road\_ltl.pml}):}
+
+\begin{enumerate}[label=(\alph*)]
+  \item $\mathsf{G}\neg(\texttt{W\_LIGHT} \wedge \texttt{E\_LIGHT})$
+
+  \item $\mathsf{G}(\texttt{W\_LIGHT} \rightarrow \mathsf{F}~\neg\texttt{W\_LIGHT} \wedge \texttt{E\_LIGHT} \rightarrow \mathsf{F}~\neg\texttt{E\_LIGHT})$
+
+  \item $\mathsf{G}(\texttt{on\_lane} \rightarrow \mathsf{F}\neg\texttt{on\_lane})$
+
+  \item $\mathsf{G}((\texttt{W\_LIGHT} \wedge \texttt{on\_lane}) \rightarrow \neg\texttt{E\_LIGHT})$
+
+  \item $\mathsf{G}(\texttt{at\_w} \rightarrow \mathsf{F}~\texttt{W\_LIGHT})$
+\end{enumerate}
+
+\subsection*{Exercise 2.2}
+
+\idea{A safety property is \blah{} and a liveness properti is \blah{}.}
+\idea{A property is said to be a combination when \blah{}.}
+\idea{With this the formulas above can be classified in the following manner.}
+
+% FIXME: this definitely needs to be revisited
+
+\begin{enumerate}[label=(\alph*)]
+  \item Safety property
+
+  \item Liveness property
+
+  \item Liveness property
+
+  \item Safety property
+
+  \item Combination
+
+\end{enumerate}
+
+\subsection*{Exercise 2.3}
+
+\idea{The counter example provided by Spin is the following (the detailed text file is provideed as well).}
+
+% TODO: paste counter example
+
+\subsection*{Exercise 2.4}
+
+\idea{The initial model fails to satisfy property (e) because it does not force \blah{}.}
+\idea{That is fixed by \blah{}.}
+
+\section*{Exercise 3}
+
+\subsection*{Exercise 3.1}
+
+% TODO: explain main modelling (particularly the main tricks on byz)
+
+\subsection*{Exercise 3.2}
+
+% TODO: formalization of properties
+
+\subsection*{Exercise 3.3}
+
+% TODO: hand output
+
+\subsection*{Exercise 3.4}
+
+% TODO: hand output
+
+\end{document}
