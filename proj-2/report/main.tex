@@ -3,6 +3,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amsthm,amssymb}
 
+
 \usepackage{graphicx}
 \usepackage{enumitem}
 
@@ -10,6 +11,15 @@
 \usepackage{algorithm}
 
 \usepackage{tikz}
+\usetikzlibrary{automata, positioning, arrow}
+
+\tikzset{
+  ->, % makes the edges directed
+  >=stealth, % makes the arrow heads bold
+  node distance=3cm, % specifies the minimum distance between two nodes. Change if necessary.
+  every state/.style={thick, fill=gray!10}, % sets the properties for each ’state’ node
+  initial text=$ $, % sets the text that appears on the start arrow
+  }
 
 \usepackage{xcolor}
 \definecolor{darkgreen}{rgb}{0.0, 0.4, 0.0}
@@ -49,48 +59,159 @@
 
 \subsubsection*{Exercise 1.1 (a)}
 
-\idea{The justification is as expectd -- the safisfiable formulas is proven with \blah{}.}
-\idea{The unsatisfiable formulas are proven by providing a trace of the transition system that does not satisfy the formula.}
+\drafter{The transition system satisfies a formula $\phi$ if all the traces of the transition system are in the models of $\phi$.}
+\drafter{For this reason, to prove that the transition system does not satisfy the formula, it is enough to provide a path of the transition system whose trace does not satisfy the formula.}
+\drafter{To prove that the transitition system does satisfy the formula, we will argue that any path of the transition system is such that its trace satisfied the formula.}
 
 \begin{enumerate}[label=\roman*.]
   \item $\mathsf{F}~\mathsf{G}~c$ -- not satisfied
 
-  \idea{The trace is $s_2 (s_4 s_3)^\omega$.}
+  \drafter{The formula states that eventually $c$ will hold forever.}
+  \drafter{If execution starts in state $s_2$, moves to $s_4$ and then moves back and forth between $s_3$ and $s_4$, $c$ doesn't always hold given that $c \notin L(s_4)$.}
+  \drafter{Formally, the path is $s_2 (s_4 s_3)^\omega$.}
 
   \item $\mathsf{G}~\mathsf{F}~c$ -- satisfied
 
-  \blah{}
+  \drafter{The formula states that it's always the case that $c$ will eventually hold.}
+  \drafter{The system will start at $s_1$ or $s_2$ and them move to either $s_2$, $s_3$ or or $s_5$, where $c$ holds.}
+  \drafter{From these it will go back to $s_4$ and then back to these forever.}
+  \drafter{For this reason, no matter the choice of actions, $c$ wil always eventually yhold.}
 
   \item $(\mathsf{X}\neg~c) \rightarrow (\mathsf{X}~\mathsf{X}~c)$ -- satisfied
 
-  \blah{}
+  \drafter{The formula states that if in the second state $c$ doesn't hold, then in the third state $c$ will hold.}
+  \drafter{There are only two possible second states - $s_3$ and $s_4$.}
+  \drafter{Given that $c$ holds at $s_3$ we need only to consider $s_4$.}
+  \drafter{In all successors of $s_4$, $c$ holds, which means that the formula is satisfied.}
 
   \item $\mathsf{G}~a$ -- not satified
 
-  \idea{The trace is $s_1 s_4 s_5^{\omega}$.}
+  \drafter{The formula states that $a$ always holds.}
+  \drafter{This is clearly not the case given that $s_2$ might be the initial state.}
+  \drafter{A trace is $s_1 s_4 s_5^{\omega}$.}
 
   \item $a~\mathsf{U}~\mathsf{G}(b \vee c)$ -- satisfied
 
-  \blah{}
+  \drafter{This formula states that $G(b \vee c)$ will hold and until then $a$ holds.}
+  \drafter{$\mathsf{G}(b \vee c)$ means that at all instants either $b$ or $c$ holds.}
+  \drafter{Given the description of the system made previously and the fact the $b \vee c$ holds at $s_2$, $s_3$, $s_4$ and $s_5$, as soon as the system reaches one of these states $b \vee c$ will always hold, which means that $\mathsf{G}(b \vee c)$ holds as well.}
+  \drafter{The only other state is $s_1$, where $a$ holds, which means that before reaching $s_2$, $s_3$, $s_4$ and $s_5$ $a$ will hold, which proves that the system satisfies the formula.}
 
 \end{itemize}
 
-% TODO: add proofs / counter example
-
 \subsubsection*{Exercise 1.1 (b)}
 
-\idea{The modeling of the system in Promela was not trivial for two reasons -- modeling the possibility of multiple initial states and avoiding the effect of stutter steps in the use of the next operator in $c$.}
-\idea{The first problem was solved by adding a flag to signal the start of the system.}
-\idea{To ensure that the LTL formulas refered to the inital state of the transition system being modelled and not Promela, the formula $\Phi$ is modified to $\neg started~\mathsf{U}~(started~\wedge~\Phi).$}
-\idea{Additionally, the use of stutter-steps by Promela also posed problems when trying to model things like using the next operator.}
-\idea{This is because next operator of Promela won't match the next operator of the state machine being.}
-\idea{To solve this a flag that is toggled on every state transition and to the next only applies if the flag is toggled.}
-\idea{With this rewrite, the LTL formulas are encoded in the following way.}
+\drafter{Even thought that Promela / Spin also have an underlying transition system, modelling the modelling of this transition system in Spin is not trivial because there's not a one to one match between the two.}
+\drafter{In particular, one mismatch is that Promela has a single initial state whereas this transition system migth have two.}
+\drafter{Another problem was the fact that Promela might take stutter steps, which render the built-in $\mathsf{X}$ operator hard to use as it won't match the transitions system., a problem that is mention in Promela's reference manual.}
 
-\idea{The last bullet showed that i. and iv. are not satisfied and Spin confirms this.}
-\idea{The traces are the following. The complete are provided in a separate text file \blah{}.}
+\drafter{The first problem was solved by adding a flag \texttt{started} to signal the start of the system.}
+\drafter{To ensure that the LTL formulas refered to the inital state of the transition system being modelled and not Promela, the formula $\Phi$ about the original transition system is modified to $\neg started~\mathsf{U}~(started~\wedge~\Phi)$ in Promela -- for $\Phi$ to hold in the transition system, the system might not have started, and when it starts the formula must hold.}
+\drafter{To address the problem caused by the combination of stutter-steps and the next operation, another flag \texttt{f} was added.}
+\drafter{This flag is inverted on every transition of the simluated transition system.}
+\drafter{This flag will be the state in two successive steps if and only if the step was a stutter.}
+\drafter{With this rewrite, the LTL formulas are encoded in the following way ($\texttt{moved} \triangleeq \texttt{f} \neq \mathsf{X}~\texttt{f}$).}
+
+\begin{enumerate}[label=\roman*.]
+  \item {\neg~\texttt{started}~\mathsf{U}~(\texttt{started} \wedge \lozenge~\square~$c$)}
+
+  \item {\neg~\texttt{started}~\mathsf{U}~(\texttt{started} \wedge \square~\lozenge~$c$)}
+
+  \item {\neg~\texttt{started}~\mathsf{U}~(\texttt{started} \wedge ((\mathsf{X}~\neg~$c$ ~\wedge~\texttt{moved}~\wedge~\mathsf{X}~\texttt{moved}) \rightarrow (\mathsf{X}~\mathsf{X}~$c$)))}
+
+  \item {\neg~\texttt{started}~\mathsf{U}~(\texttt{started} \wedge \square~$a$)}
+
+  \item {\neg~\texttt{started}~\mathsf{U}~(\texttt{started} \wedge ($a$~\mathsf{U}~\square~($b$ \vee $c$))))}
+
+\end{enumerate}
+
+\drafter{By using this encoding of the LTL formulas, Spin confirms the results from the previous exercise.}
+\drafter{The counter-example provided are the following\footnote{The complete output can be found in files \texttt{extras/spin-output-1.1.b.*.txt}}.}
+
+\begin{enumerate}[label=\roman*.]
+  \item $s_1 s_3 s_4 s_2 s_4 (s_2 s_4)^\omega$
+  \addtocounter{enumi}{2}
+  \item $s_1 s_3 s_4 s_2 s_4 s_2 s_4 s_3 s_4$
+\end{enumerate}
 
 \subsection*{Exercise 1.2}
+
+% TODO: state definition of equivalence
+
+\idea{Theorem 7.16 of Module 7 of the lecture notes is restated here.}
+
+\idea{\textbf{Theorem} Let $\alpha$ be a CTL formula and let $\phi$ be the LTL formula obtained from $\alpha$ by omitting all path quantifiers. Then,}
+\begin{align}
+    \idea{$\phi \equiv \alpha$ or there is no LTL formula that is equivalent to $\alpha$}
+\end{align}
+
+\idea{Given that in this exercise, each pair of formulas is a CTL and a LTL formula, this theorem will prove useful.}
+\idea{For each CTL formula, the corresponding LTL (obtained by omitting all path quantifiers is presented).}
+\idea{Then, the equivalent or not equivalence between the two is justified.}
+
+\begin{enumerate}[label=(\alph*)]
+  \item Let $\alpha = \mathsf{A}~\mathsf{G}~\mathsf{A}~\mathsf{X}~p$ and $\psi = \mathsf{G}~\mathsf{X}~p$.
+        % The formula corresponding to $\alpha$ is $\phi = \mathsf{G}~\mathsf{X}~p$, which matches $\psi$.
+
+    $\mathsf{A}~\mathsf{G}~\mathsf{A}~\mathsf{X}~p$ states that $\mathsf{A}~\mathsf{X}~p$ is an invariants, i.e., holds for every state in every path.
+    $\mathsf{A}~\mathsf{X}~p$ states that $p$ holds in all successors.
+    For this reason $\alpha$ states that $p$ holds in all states after the first.
+
+    $\phi$ states that $p$ holds everywhere but the first state.
+
+    So they are equivalent.
+
+  \item Let $\alpha = \mathsf{A}~\mathsf{F}~\mathsf{A}~\mathsf{X}~p$ and $\psi = \mathsf{F}~\mathsf{X}~p$.
+    % The formula corresponding to $\alpha$ is $\phi = \mathsf{F}~\mathsf{X}~p$.
+    $\mathsf{A}~\mathsf{F}~\mathsf{A}~\mathsf{X}~p$ states that in all paths eventually a state will be such where all sucessors satisfy $p$.
+    A transition system satisfies $\mathsf{F}~\mathsf{X}~p$ if all its traces eventually have a states that is not initial that satisfies $p$.
+
+    Not equivalent.
+
+    \begin{figure}[ht]
+      \centering
+      \begin{tikzpicture}
+        \node[state, initial,label=below:{\{\}}] (q1) {$s_0$};
+        \node[state, right of=q1,label=below:{\{\}}] (q2) {$s_1$};
+        \node[state, right of=q2,label=below:{\{p\}}] (q3) {$s_2$};
+        \node[state, right of=q3,label=below:{\{\}}] (q4) {$s_3$};
+        \node[state, right of=q4,label=below:{\{\}}] (q5) {$s_4$};
+
+        \draw (q1) edge[] (q2)
+              (q2) edge[] (q3)
+              (q3) edge[] (q4)
+              (q4) edge[] (q5)
+              (q5) edge[bend right] (q3)
+              (q2) edge[bend right=40] (q4)
+      \end{tikzpicture}
+      \caption{Counter-example for exercise 1.2 (b)}
+      \label{fig:1-2-b}
+    \end{figure}
+
+  % TODO:
+  \item Let $\alpha = \mathsf{A}~\mathsf{F}~p \vee \mathsf{A}~\mathsf{F}~q$ and $\psi = \mathsf{F}~(p \vee q)$.
+    The formula corresponding to $\alpha$ is $\mathsf{F}~p \vee \mathsf{F}~q$.
+    Clearly, $\phi \equiv \psi$, so $\alpha \equiv \psi$.
+
+    Not equivalent.
+
+    \begin{figure}[ht]
+      \centering
+      \begin{tikzpicture}
+        \node[state, initial,label=below:{\{\}}] (q1) {$s_0$};
+        \node[state, right of=q1, label=below:{\{p\}}] (q2) {$s_1$};
+        \node[state, right of=q2, label=below:{\{q\}}] (q3) {$s_2$};
+
+        \draw (q1) edge[] (q2)
+              (q1) edge[bend left] (q3)
+              (q2) edge[loop right] (q2)
+              (q3) edge[loop above] (q3)
+      \end{tikzpicture}
+      \caption{Counter-example for exercise 1.2 (c)}
+      \label{fig:1-2-c}
+    \end{figure}
+
+\end{enumerate}
 
 % TODO: add proofs / counter example
 
@@ -108,41 +229,46 @@
   \item $\mathsf{G}(\texttt{on\_lane} \rightarrow \mathsf{F}\neg\texttt{on\_lane})$
 
   \item $\mathsf{G}((\texttt{W\_LIGHT} \wedge \texttt{on\_lane}) \rightarrow \neg\texttt{E\_LIGHT})$
+  % TODO: discuss subtleties in modelling this one
 
   \item $\mathsf{G}(\texttt{at\_w} \rightarrow \mathsf{F}~\texttt{W\_LIGHT})$
 \end{enumerate}
 
 \subsection*{Exercise 2.2}
 
-\idea{A safety property is \blah{} and a liveness properti is \blah{}.}
-\idea{A property is said to be a combination when \blah{}.}
-\idea{With this the formulas above can be classified in the following manner.}
+\idea{A safety property is one where words not in the language are finite and a liveness properti is one where words not in the language are infinite.}
+\idea{Formally (and paraphrasing from Module 4 of the lecture notes):}
 
-% FIXME: this definitely needs to be revisited
+\idea{A property is said to be a combination when \blah{}.}
+
+\idea{With this the definitions just presented, the formulas can be classified in the following manner.}
 
 \begin{enumerate}[label=(\alph*)]
-  \item Safety property
+  \item Safety property:
 
-  \item Liveness property
+  \item Liveness property:
 
-  \item Liveness property
+  \item Liveness property:
 
-  \item Safety property
+  \item Safety property:
 
-  \item Combination
+  \item Liveness property:
 
 \end{enumerate}
 
 \subsection*{Exercise 2.3}
 
-\idea{The counter example provided by Spin is the following (the detailed text file is provideed as well).}
+\idea{The counter example provided by Spin is the following (the detailed text file is provided as well).}
 
 % TODO: paste counter example
 
 \subsection*{Exercise 2.4}
 
-\idea{The initial model fails to satisfy property (e) because it does not force \blah{}.}
-\idea{That is fixed by \blah{}.}
+\idea{The initial model fails to satisfy property (e) because it does truly ensure fairness.}
+\idea{Weak fairness relies on an action being continuously enabled, but that does not happen.}
+\idea{If one car crosses, the safety properties prevent the other from crossing and safety disables it.}
+\idea{So a stronger notion of safety is required -- that if west just passed, it can only go if east it not waiting.}
+\idea{This can be done by having a single flag for this.}
 
 \section*{Exercise 3}
 
@@ -152,7 +278,26 @@
 
 \subsection*{Exercise 3.2}
 
-% TODO: formalization of properties
+\idea{The protocol should satisfy three properties: agreement, validity and termination.}
+\idea{For the purposes of specifying the formulas, let $inputs_i \in \{0,1\}$ denote the inputs of process $P_i for i \in \{1, .., |N|\}$ and $outputs_i \in \{0,1, \bot\}$ denote the output ($\bot$ is process hasn't outputed yet).}
+\idea{Note that this is only defined for correct processes.}
+\idea{For convenience let $done \triangleq \bigwedge_{i \in \{1, .., |N|\}} outputs_i \neq \bot$, given an array $v$, $allSame(v) \triangleq \exists x \, \forall y \in v \, (x = y)$.}
+\idea{The encoding of these properties as LTL formulas is the following.}
+
+\begin{itemize}
+  \item Agreement: $\square (done \rightarrow allSame(outputs))$
+  \item Validity: $\square ((done \wedge allSame(inputs)) \rightarrow allSame(outputs))$
+  \item Termination: $\lozenge~done$
+\end{itemize}
+
+\idea{We noted that the validity property that the project statement specified was different from what the paper specified and from what is Distributed System's usual notion of validity.}
+\idea{The previous definition refered to the latter.}
+\idea{For completeness the former, which requires the intermediate values to be uniform throughput the execution, is specified (we call it strong validity):}
+\idea{For this we need to assume a common vector $v$ where $v_i$ is the value of process $i$.}
+
+\begin{itemize}
+  \item Strong validity: $\square (allSame(inputs) \rightarrow (allSame(v) \wedge (done \implies allSame(outputs))))$
+\end{itemize}
 
 \subsection*{Exercise 3.3}
 

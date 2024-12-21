@@ -1,0 +1,55 @@
+Checking syntax and generating the pan.c verifier ...
+/run/current-system/sw/bin/spin -a ex1-temporal-logic.pml
+ltl pi: (! (started)) U ((started) && (<> ([] (c))))
+ltl pii: (! (started)) U ((started) && ([] (<> (c))))
+ltl piii: (! (started)) U ((started) && ((! (((X (! (c))) && (((f) && (! (X (f)))) || ((! (f)) && (X (f))))) && (X (((f) && (! (X (f)))) || ((! (f)) && (X (f))))))) || (X (X (c)))))
+ltl piv: (! (started)) U ((started) && ([] (a)))
+ltl pv: (! (started)) U ((started) && ((a) U ([] ((b) || (c)))))
+  the model contains 5 never claims: pv, piv, piii, pii, pi
+  only one claim is used in a verification run
+  choose which one with ./pan -a -N name (defaults to -N pi)
+  or use e.g.: spin -search -ltl pi ex1-temporal-logic.pml
+No Syntax Error.
+
+Starting verification...
+/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DXUSAFE -O2 -DNFAIR=3 -DCOLLAPSE -w -o pan pan.c
+./pan -m10000 -a -f -c1 -N pv
+
+Verification result:
+pan: ltl formula pv
+
+(Spin Version 6.5.2 -- 6 December 2019)
+	+ Partial Order Reduction
+	+ Compression
+
+Full statespace search for:
+	never claim         	+ (pv)
+	assertion violations	+ (if within scope of claim)
+	acceptance   cycles 	+ (fairness enabled)
+	invalid end states	- (disabled by never claim)
+
+State-vector 36 byte, depth reached 63, errors: 0
+      136 states, stored (269 visited)
+      535 states, matched
+      804 transitions (= visited+matched)
+        0 atomic steps
+hash conflicts:         0 (resolved)
+
+Stats on memory usage (in Megabytes):
+    0.009	equivalent memory usage for states (stored*(State-vector + overhead))
+    0.199	actual memory usage for states
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  128.730	total actual memory usage
+
+
+nr of templates: [ 0:globals 1:chans 2:procs ]
+collapse counts: [ 0:12 2:17 7:9 ]
+unreached in proctype TransitionSystem
+	ex1-temporal-logic.pml:61, state 94, "-end-"
+	(1 of 94 states)
+unreached in claim pv
+	_spin_nvr.tmp:396, state 178, "-end-"
+	(1 of 178 states)
+
+pan: elapsed time 0 seconds
