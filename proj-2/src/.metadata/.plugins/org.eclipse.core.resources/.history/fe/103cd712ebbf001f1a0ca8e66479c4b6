@@ -1,11 +1,8 @@
-// #define N 4
-#define N 3
+#define N 2
 #define T 1
 #define c(i,j) _c[(i)*(N+T) + (j)]
 
-// #include "consensus_ltl_n_3.pml"
-#include "consensus_ltl_n_3.pml"
-
+#include "consensus_ltl_n_2.pml"
 
 // c(i,j) is to send messages from i to j
 // there's no point in sending values to byz
@@ -30,10 +27,18 @@ proctype reliable(int id) {
       // 1.1 send its value to every other process
       d_step {
         i = 0;
+        for (i: 0 .. (N+T)) {
+          c(id-1,i) ! v[id-1];
+        }
+        /*
         do
-        :: i < N+T -> c(id-1,i) ! v[id-1]; i++;
+        :: i < N+T -> if
+                      :: c(i,id-1) ? 0 -> d_step { zeros++; printf("[%d] received %d from %d\n", id, 0, i+1); i++ };
+                      :: c(i,id-1) ? 1 -> d_step { printf("[%d] received %d from %d\n", id, 1, i+1); i++ };
+                      fi;
         :: i == N+T -> break;
         od;
+        */
 
         i = 0;
         zeros = 0;
@@ -106,7 +111,7 @@ proctype faulty(int id) {
 
   do
   :: rounds[id-1] > T + 1 -> break
-  :: rounds[id-1]<= T + 1 ->
+  :: rounds[id-1] <= T + 1 ->
       // 1
 
       // 1.1 send some value to every other process

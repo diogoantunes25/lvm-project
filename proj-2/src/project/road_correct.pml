@@ -107,52 +107,6 @@ init {
     atomic { run timer(); run controler(); run w_sensor(); run e_sensor(); run l_sensor() }
 }
 
-/**
-
-started movement of east
-movement of east timed out
-resetting
-started movement of east
-putting east on lane
-done with movement of west
-resetting
-started movement of east
-putting east on lane
-done with movement of west
-resetting
-started movement of east
-putting east on lane
-done with movement of west
-resetting
-started movement of east
-putting east on lane
-done with movement of west
-resetting
-started movement of east
-putting east on lane
-done with movement of west
-<<<<<START OF CYCLE>>>>>
-resetting
-started movement of east
-movement of east timed out
-resetting
-started movement of east
-putting east on lane
-done with movement of east
-resetting
-started movement of east
-putting east on lane
-done with movement of east
-resetting
-started movement of east
-putting east on lane
-done with movement of east
-resetting
-started movement of east
-putting east on lane
-done with movement of east
-**/
-
 /*
  *  == LTL properties ==
  */

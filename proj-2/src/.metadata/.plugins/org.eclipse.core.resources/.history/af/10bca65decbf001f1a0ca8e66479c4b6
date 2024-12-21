@@ -1,11 +1,8 @@
-// #define N 4
-#define N 3
+#define N 4
 #define T 1
 #define c(i,j) _c[(i)*(N+T) + (j)]
 
-// #include "consensus_ltl_n_3.pml"
-#include "consensus_ltl_n_3.pml"
-
+#include "consensus_ltl.pml"
 
 // c(i,j) is to send messages from i to j
 // there's no point in sending values to byz
@@ -48,6 +45,7 @@ proctype reliable(int id) {
                     fi;
       :: i == N+T -> break;
       od;
+      // printf("[%d] got %d zeros and %d ones\n", id, zeros, N+T-zeros);
 
       // Part 2
 
