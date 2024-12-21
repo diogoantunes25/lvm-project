@@ -1,0 +1,70 @@
+Checking syntax and generating the pan.c verifier ...
+/run/current-system/sw/bin/spin -a road.pml
+ltl pA: [] (! ((((state==w1)) || ((state==w2))) && (((state==e1)) || ((state==e2)))))
+ltl pB: [] (((! (((state==w1)) || ((state==w2)))) || (<> (! (((state==w1)) || ((state==w2)))))) && ((! (((state==e1)) || ((state==e2)))) || (<> (! (((state==e1)) || ((state==e2)))))))
+ltl pC: [] ((! (on_lane)) || (<> (! (on_lane))))
+ltl pD: [] ((! ((((state==w1)) || ((state==w2))) && (on_lane))) || (! (((state==e1)) || ((state==e2)))))
+ltl pE: [] ((! (at_w)) || (<> (((state==w1)) || ((state==w2)))))
+  the model contains 5 never claims: pE, pD, pC, pB, pA
+  only one claim is used in a verification run
+  choose which one with ./pan -a -N name (defaults to -N pA)
+  or use e.g.: spin -search -ltl pA road.pml
+No Syntax Error.
+
+Starting verification...
+/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DSAFETY -DXUSAFE -O2 -DNFAIR=3 -DCOLLAPSE -w -o pan pan.c
+./pan -m10000 -c1 -N pA
+
+Verification result:
+warning: never claim + accept labels requires -a flag to fully verify
+pan: ltl formula pA
+
+(Spin Version 6.5.2 -- 6 December 2019)
+	+ Partial Order Reduction
+	+ Compression
+
+Full statespace search for:
+	never claim         	+ (pA)
+	assertion violations	+ (if within scope of claim)
+	cycle checks       	- (disabled by -DSAFETY)
+	invalid end states	- (disabled by never claim)
+
+State-vector 84 byte, depth reached 1949, errors: 0
+     2975 states, stored
+    10481 states, matched
+    13456 transitions (= stored+matched)
+      129 atomic steps
+hash conflicts:        66 (resolved)
+
+Stats on memory usage (in Megabytes):
+    0.318	equivalent memory usage for states (stored*(State-vector + overhead))
+    0.371	actual memory usage for states
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  128.827	total actual memory usage
+
+
+nr of templates: [ 0:globals 1:chans 2:procs ]
+collapse counts: [ 0:177 2:4 3:4 4:2 5:5 6:13 7:2 8:1 ]
+unreached in proctype w_sensor
+	road.pml:37, state 15, "-end-"
+	(1 of 15 states)
+unreached in proctype e_sensor
+	road.pml:48, state 15, "-end-"
+	(1 of 15 states)
+unreached in proctype l_sensor
+	road.pml:56, state 10, "-end-"
+	(1 of 10 states)
+unreached in proctype timer
+	road.pml:66, state 12, "-end-"
+	(1 of 12 states)
+unreached in proctype controler
+	road.pml:86, state 29, "-end-"
+	(1 of 29 states)
+unreached in init
+	(0 of 7 states)
+unreached in claim pA
+	_spin_nvr.tmp:8, state 10, "-end-"
+	(1 of 10 states)
+
+pan: elapsed time 0 seconds

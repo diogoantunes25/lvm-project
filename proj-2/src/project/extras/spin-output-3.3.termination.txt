@@ -1,0 +1,92 @@
+Checking syntax and generating the pan.c verifier ...
+/run/current-system/sw/bin/spin -a consensus.pml
+ltl agreement: [] ((! (((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && ((outputs[3]!=2)))) || ((((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))) && ((outputs[2]==outputs[3]))))
+ltl validity: [] ((! ((((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && ((outputs[3]!=2))) && ((((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))) && ((inputs[2]==inputs[3]))))) || ((((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))) && ((outputs[2]==outputs[3]))))
+ltl validity_strong: [] ((! (((((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))) && ((inputs[2]==inputs[3]))) && (started))) || (((((v[0]==v[1])) && ((v[1]==v[2]))) && ((v[2]==v[3]))) && ((! (((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && ((outputs[3]!=2)))) || ((((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))) && ((outputs[2]==outputs[3]))))))
+ltl termination: <> (((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && ((outputs[3]!=2)))
+  the model contains 4 never claims: termination, validity_strong, validity, agreement
+  only one claim is used in a verification run
+  choose which one with ./pan -a -N name (defaults to -N agreement)
+  or use e.g.: spin -search -ltl agreement consensus.pml
+No Syntax Error.
+
+Starting verification...
+/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DXUSAFE -O2 -DCOLLAPSE -w -o pan pan.c
+./pan -m10000 -a -f -c1 -N termination
+
+Verification result:
+pan: ltl formula termination
+
+(Spin Version 6.5.2 -- 6 December 2019)
+	+ Partial Order Reduction
+	+ Compression
+
+Full statespace search for:
+	never claim         	+ (termination)
+	assertion violations	+ (if within scope of claim)
+	acceptance   cycles 	+ (fairness enabled)
+	invalid end states	- (disabled by never claim)
+
+State-vector 268 byte, depth reached 0, errors: 0
+        1 states, stored
+        0 states, matched
+        1 transitions (= stored+matched)
+        0 atomic steps
+hash conflicts:         0 (resolved)
+
+Stats on memory usage (in Megabytes):
+    0.000	equivalent memory usage for states (stored*(State-vector + overhead))
+    0.277	actual memory usage for states
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  128.730	total actual memory usage
+
+
+nr of templates: [ 0:globals 1:chans 2:procs ]
+collapse counts: [ 0:1 4:1 8:1 ]
+unreached in proctype reliable
+	consensus.pml:28, state 13, "D_STEP28"
+	consensus.pml:38, state 16, "D_STEP38"
+	consensus.pml:41, state 21, "i = (i+1)"
+	consensus.pml:41, state 22, "zeros = (zeros+1)"
+	consensus.pml:42, state 26, "printf('[%d] received %d from %d\n',id,1,(i+1))"
+	consensus.pml:41, state 27, "c[((i*(4+1))+(id-1))]?0"
+	consensus.pml:41, state 27, "c[((i*(4+1))+(id-1))]?1"
+	consensus.pml:40, state 31, "((i<(4+1)))"
+	consensus.pml:40, state 31, "((i==(4+1)))"
+	consensus.pml:53, state 51, "D_STEP53"
+	consensus.pml:51, state 52, "(1)"
+	consensus.pml:67, state 66, "D_STEP67"
+	consensus.pml:22, state 67, "((rounds[(id-1)]>(1+1)))"
+	consensus.pml:22, state 67, "((rounds[(id-1)]<=(1+1)))"
+	consensus.pml:85, state 72, "printf('[%d] My value is %d\n',id,v[(id-1)])"
+	consensus.pml:88, state 73, "-end-"
+	(13 of 73 states)
+unreached in proctype faulty
+	consensus.pml:99, state 19, "D_STEP99"
+	consensus.pml:118, state 23, "c[((i*(4+1))+(id-1))]?dummy"
+	consensus.pml:119, state 28, "c[(((rounds[(id-1)]-1)*(4+1))+(id-1))]?dummy"
+	consensus.pml:118, state 29, "((i<(4+1)))"
+	consensus.pml:118, state 29, "((i==(4+1)))"
+	consensus.pml:94, state 32, "((rounds[(id-1)]>(1+1)))"
+	consensus.pml:94, state 32, "((rounds[(id-1)]<=(1+1)))"
+	consensus.pml:124, state 35, "-end-"
+	(6 of 35 states)
+unreached in init
+	consensus.pml:135, state 6, "printf('[%d] My input is 0\n',(i+1))"
+	consensus.pml:136, state 9, "printf('[%d] My input is 1\n',(i+1))"
+	consensus.pml:135, state 10, "(1)"
+	consensus.pml:135, state 10, "(1)"
+	consensus.pml:140, state 14, "i = (i+1)"
+	consensus.pml:148, state 23, "(run reliable(i))"
+	consensus.pml:148, state 24, "i = (i+1)"
+	consensus.pml:149, state 27, "(run faulty(i))"
+	consensus.pml:149, state 28, "i = (i+1)"
+	consensus.pml:152, state 34, "started = 1"
+	consensus.pml:154, state 36, "-end-"
+	(10 of 36 states)
+unreached in claim termination
+	_spin_nvr.tmp:33, state 6, "-end-"
+	(1 of 6 states)
+
+pan: elapsed time 0 seconds

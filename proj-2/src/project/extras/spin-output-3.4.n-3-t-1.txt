@@ -1,0 +1,616 @@
+Checking syntax and generating the pan.c verifier ...
+/run/current-system/sw/bin/spin -a consensus.pml
+ltl agreement: [] ((! ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))
+ltl validity: [] ((! (((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && (((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))
+ltl validity_strong: [] ((! ((((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))) && (started))) || ((((v[0]==v[1])) && ((v[1]==v[2]))) && ((! ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))))
+ltl termination: <> ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))
+  the model contains 4 never claims: termination, validity_strong, validity, agreement
+  only one claim is used in a verification run
+  choose which one with ./pan -a -N name (defaults to -N agreement)
+  or use e.g.: spin -search -ltl agreement consensus.pml
+No Syntax Error.
+
+Starting verification...
+/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DSAFETY -DXUSAFE -O2 -DNFAIR=3 -DCOLLAPSE -w -o pan pan.c
+./pan -m10000 -c1 -N agreement
+
+Verification result:
+warning: never claim + accept labels requires -a flag to fully verify
+pan: ltl formula agreement
+
+(Spin Version 6.5.2 -- 6 December 2019)
+	+ Partial Order Reduction
+	+ Compression
+
+Full statespace search for:
+	never claim         	+ (agreement)
+	assertion violations	+ (if within scope of claim)
+	cycle checks       	- (disabled by -DSAFETY)
+	invalid end states	- (disabled by never claim)
+
+State-vector 236 byte, depth reached 412, errors: 0
+   708605 states, stored
+   283980 states, matched
+   992585 transitions (= stored+matched)
+   962176 atomic steps
+hash conflicts:      4011 (resolved)
+
+Stats on memory usage (in Megabytes):
+  178.405	equivalent memory usage for states (stored*(State-vector + overhead))
+   36.121	actual memory usage for states (compression: 20.25%)
+         	state-vector as stored = 25 byte + 28 byte overhead
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  164.569	total actual memory usage
+
+
+nr of templates: [ 0:globals 1:chans 2:procs ]
+collapse counts: [ 0:82365 2:315 3:10 4:34 5:1 ]
+unreached in proctype reliable
+	consensus.pml:87, state 72, "printf('[%d] My value is %d\n',id,v[(id-1)])"
+	consensus.pml:90, state 73, "-end-"
+	(2 of 73 states)
+unreached in proctype faulty
+	consensus.pml:126, state 35, "-end-"
+	(1 of 35 states)
+unreached in init
+	(0 of 34 states)
+unreached in claim agreement
+	_spin_nvr.tmp:8, state 10, "-end-"
+	(1 of 10 states)
+
+pan: elapsed time 0.6 seconds
+pan: rate 1181008.3 states/second
+
+
+Checking syntax and generating the pan.c verifier ...
+/run/current-system/sw/bin/spin -a consensus.pml
+ltl agreement: [] ((! ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))
+ltl validity: [] ((! (((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && (((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))
+ltl validity_strong: [] ((! ((((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))) && (started))) || ((((v[0]==v[1])) && ((v[1]==v[2]))) && ((! ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))))
+ltl termination: <> ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))
+  the model contains 4 never claims: termination, validity_strong, validity, agreement
+  only one claim is used in a verification run
+  choose which one with ./pan -a -N name (defaults to -N agreement)
+  or use e.g.: spin -search -ltl agreement consensus.pml
+No Syntax Error.
+
+Starting verification...
+/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DSAFETY -DXUSAFE -O2 -DNFAIR=3 -DCOLLAPSE -w -o pan pan.c
+./pan -m10000 -c1 -N validity
+
+Verification result:
+warning: never claim + accept labels requires -a flag to fully verify
+pan: ltl formula validity
+
+(Spin Version 6.5.2 -- 6 December 2019)
+	+ Partial Order Reduction
+	+ Compression
+
+Full statespace search for:
+	never claim         	+ (validity)
+	assertion violations	+ (if within scope of claim)
+	cycle checks       	- (disabled by -DSAFETY)
+	invalid end states	- (disabled by never claim)
+
+State-vector 236 byte, depth reached 412, errors: 0
+   708605 states, stored
+   283980 states, matched
+   992585 transitions (= stored+matched)
+   962176 atomic steps
+hash conflicts:      4446 (resolved)
+
+Stats on memory usage (in Megabytes):
+  178.405	equivalent memory usage for states (stored*(State-vector + overhead))
+   36.121	actual memory usage for states (compression: 20.25%)
+         	state-vector as stored = 25 byte + 28 byte overhead
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  164.569	total actual memory usage
+
+
+nr of templates: [ 0:globals 1:chans 2:procs ]
+collapse counts: [ 0:82365 2:315 3:10 4:34 6:1 ]
+unreached in proctype reliable
+	consensus.pml:87, state 72, "printf('[%d] My value is %d\n',id,v[(id-1)])"
+	consensus.pml:90, state 73, "-end-"
+	(2 of 73 states)
+unreached in proctype faulty
+	consensus.pml:126, state 35, "-end-"
+	(1 of 35 states)
+unreached in init
+	(0 of 34 states)
+unreached in claim validity
+	_spin_nvr.tmp:17, state 10, "-end-"
+	(1 of 10 states)
+
+pan: elapsed time 0.6 seconds
+pan: rate 1181008.3 states/second
+
+
+Checking syntax and generating the pan.c verifier ...
+/run/current-system/sw/bin/spin -a consensus.pml
+ltl agreement: [] ((! ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))
+ltl validity: [] ((! (((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && (((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))
+ltl validity_strong: [] ((! ((((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))) && (started))) || ((((v[0]==v[1])) && ((v[1]==v[2]))) && ((! ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))))
+ltl termination: <> ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))
+  the model contains 4 never claims: termination, validity_strong, validity, agreement
+  only one claim is used in a verification run
+  choose which one with ./pan -a -N name (defaults to -N agreement)
+  or use e.g.: spin -search -ltl agreement consensus.pml
+No Syntax Error.
+
+Starting verification...
+/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DXUSAFE -O2 -DNFAIR=3 -DCOLLAPSE -w -o pan pan.c
+./pan -m10000 -a -f -c1 -N validity
+
+Verification result:
+pan: ltl formula validity
+
+(Spin Version 6.5.2 -- 6 December 2019)
+	+ Partial Order Reduction
+	+ Compression
+
+Full statespace search for:
+	never claim         	+ (validity)
+	assertion violations	+ (if within scope of claim)
+	acceptance   cycles 	+ (fairness enabled)
+	invalid end states	- (disabled by never claim)
+
+State-vector 244 byte, depth reached 412, errors: 0
+   708605 states, stored
+   283980 states, matched
+   992585 transitions (= stored+matched)
+   962176 atomic steps
+hash conflicts:      4093 (resolved)
+
+Stats on memory usage (in Megabytes):
+  189.218	equivalent memory usage for states (stored*(State-vector + overhead))
+   46.673	actual memory usage for states (compression: 24.67%)
+         	state-vector as stored = 33 byte + 36 byte overhead
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  175.116	total actual memory usage
+
+
+nr of templates: [ 0:globals 1:chans 2:procs ]
+collapse counts: [ 0:82365 2:315 3:10 4:34 6:1 ]
+unreached in proctype reliable
+	consensus.pml:87, state 72, "printf('[%d] My value is %d\n',id,v[(id-1)])"
+	consensus.pml:90, state 73, "-end-"
+	(2 of 73 states)
+unreached in proctype faulty
+	consensus.pml:126, state 35, "-end-"
+	(1 of 35 states)
+unreached in init
+	(0 of 34 states)
+unreached in claim validity
+	_spin_nvr.tmp:17, state 10, "-end-"
+	(1 of 10 states)
+
+pan: elapsed time 0.66 seconds
+pan: rate 1073643.9 states/second
+
+
+Checking syntax and generating the pan.c verifier ...
+/run/current-system/sw/bin/spin -a consensus.pml
+ltl agreement: [] ((! ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))
+ltl validity: [] ((! (((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && (((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))
+ltl validity_strong: [] ((! ((((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))) && (started))) || ((((v[0]==v[1])) && ((v[1]==v[2]))) && ((! ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))))
+ltl termination: <> ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))
+  the model contains 4 never claims: termination, validity_strong, validity, agreement
+  only one claim is used in a verification run
+  choose which one with ./pan -a -N name (defaults to -N agreement)
+  or use e.g.: spin -search -ltl agreement consensus.pml
+No Syntax Error.
+
+Starting verification...
+/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DXUSAFE -O2 -DNFAIR=3 -DCOLLAPSE -w -o pan pan.c
+./pan -m10000 -a -f -c1 -N termination
+
+Verification result:
+pan: ltl formula termination
+
+(Spin Version 6.5.2 -- 6 December 2019)
+	+ Partial Order Reduction
+	+ Compression
+
+Full statespace search for:
+	never claim         	+ (termination)
+	assertion violations	+ (if within scope of claim)
+	acceptance   cycles 	+ (fairness enabled)
+	invalid end states	- (disabled by never claim)
+
+State-vector 180 byte, depth reached 0, errors: 0
+        1 states, stored
+        0 states, matched
+        1 transitions (= stored+matched)
+        0 atomic steps
+hash conflicts:         0 (resolved)
+
+Stats on memory usage (in Megabytes):
+    0.000	equivalent memory usage for states (stored*(State-vector + overhead))
+    0.273	actual memory usage for states
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  128.730	total actual memory usage
+
+
+nr of templates: [ 0:globals 1:chans 2:procs ]
+collapse counts: [ 0:1 4:1 8:1 ]
+unreached in proctype reliable
+	consensus.pml:18, state 1, "v[(id-1)] = inputs[(id-1)]"
+	consensus.pml:20, state 2, "ithMajority = 0"
+	consensus.pml:22, state 4, "i = 0"
+	consensus.pml:22, state 5, "printf('[%d] starting with value = %d\n',id,v[(id-1)])"
+	consensus.pml:24, state 6, "round = 1"
+	consensus.pml:35, state 12, "c[(((id-1)*(3+1))+i)]!v[(id-1)]"
+	consensus.pml:33, state 19, "i = 0"
+	consensus.pml:42, state 20, "i = 0"
+	consensus.pml:46, state 24, "zeros = (zeros+1)"
+	consensus.pml:47, state 27, "(1)"
+	consensus.pml:46, state 29, "c[((i*(3+1))+(id-1))]?0"
+	consensus.pml:46, state 29, "c[((i*(3+1))+(id-1))]?1"
+	consensus.pml:45, state 34, "((i<(3+1)))"
+	consensus.pml:45, state 34, "((i==(3+1)))"
+	consensus.pml:61, state 40, "c[(((id-1)*(3+1))+i)]!0"
+	consensus.pml:62, state 42, "c[(((id-1)*(3+1))+i)]!1"
+	consensus.pml:63, state 44, "(1)"
+	consensus.pml:61, state 45, "(((id==round)&&(zeros>((3+1)-zeros))))"
+	consensus.pml:61, state 45, "(((id==round)&&(zeros<=((3+1)-zeros))))"
+	consensus.pml:61, state 45, "else"
+	consensus.pml:58, state 53, "i = 0"
+	consensus.pml:79, state 61, "v[(id-1)] = ithMajority"
+	consensus.pml:77, state 62, "((zeros>=3))"
+	consensus.pml:77, state 62, "((((3+1)-zeros)>=3))"
+	consensus.pml:77, state 62, "else"
+	consensus.pml:72, state 66, "c[(((round-1)*(3+1))+(id-1))]?ithMajority"
+	consensus.pml:25, state 67, "((round>(1+1)))"
+	consensus.pml:25, state 67, "((round<=(1+1)))"
+	consensus.pml:87, state 72, "printf('[%d] My value is %d\n',id,v[(id-1)])"
+	consensus.pml:90, state 73, "-end-"
+	(23 of 73 states)
+unreached in proctype faulty
+	consensus.pml:107, state 7, "c[(((id-1)*(3+1))+i)]!0"
+	consensus.pml:108, state 9, "c[(((id-1)*(3+1))+i)]!1"
+	consensus.pml:107, state 10, "(1)"
+	consensus.pml:107, state 10, "(1)"
+	consensus.pml:114, state 18, "i = 0"
+	consensus.pml:103, state 19, "i = 0"
+	consensus.pml:121, state 23, "c[((i*(3+1))+(id-1))]?dummy"
+	consensus.pml:122, state 28, "c[(((round-1)*(3+1))+(id-1))]?dummy"
+	consensus.pml:121, state 29, "((i<(3+1)))"
+	consensus.pml:121, state 29, "((i==(3+1)))"
+	consensus.pml:97, state 32, "((round>(1+1)))"
+	consensus.pml:97, state 32, "((round<=(1+1)))"
+	consensus.pml:126, state 35, "-end-"
+	(10 of 35 states)
+unreached in init
+	consensus.pml:135, state 4, "inputs[i] = 0"
+	consensus.pml:135, state 5, "v[i] = 0"
+	consensus.pml:135, state 6, "printf('[%d] My input is 0\n',i)"
+	consensus.pml:136, state 8, "inputs[i] = 1"
+	consensus.pml:136, state 9, "v[i] = 1"
+	consensus.pml:136, state 10, "printf('[%d] My input is 1\n',i)"
+	consensus.pml:135, state 11, "(1)"
+	consensus.pml:135, state 11, "(1)"
+	consensus.pml:138, state 13, "outputs[i] = 2"
+	consensus.pml:139, state 14, "i = (i+1)"
+	consensus.pml:134, state 17, "((i<3))"
+	consensus.pml:134, state 17, "else"
+	consensus.pml:147, state 22, "(run reliable(i))"
+	consensus.pml:147, state 23, "i = (i+1)"
+	consensus.pml:148, state 25, "(run faulty(i))"
+	consensus.pml:148, state 26, "i = (i+1)"
+	consensus.pml:151, state 32, "started = 1"
+	consensus.pml:145, state 33, "i = 1"
+	consensus.pml:153, state 34, "-end-"
+	(17 of 34 states)
+unreached in claim termination
+	_spin_nvr.tmp:33, state 6, "-end-"
+	(1 of 6 states)
+
+pan: elapsed time 0 seconds
+
+
+Checking syntax and generating the pan.c verifier ...
+/run/current-system/sw/bin/spin -a consensus.pml
+ltl agreement: [] ((! (((outputs[0]!=2)) && ((outputs[1]!=2)))) || ((outputs[0]==outputs[1])))
+ltl validity: [] ((! ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((inputs[0]==inputs[1])))) || ((outputs[0]==outputs[1])))
+ltl validity_strong: [] ((! (((inputs[0]==inputs[1])) && (started))) || (((v[0]==v[1])) && ((! (((outputs[0]!=2)) && ((outputs[1]!=2)))) || ((outputs[0]==outputs[1])))))
+ltl termination: <> (((outputs[0]!=2)) && ((outputs[1]!=2)))
+  the model contains 4 never claims: termination, validity_strong, validity, agreement
+  only one claim is used in a verification run
+  choose which one with ./pan -a -N name (defaults to -N agreement)
+  or use e.g.: spin -search -ltl agreement consensus.pml
+No Syntax Error.
+
+Starting verification...
+/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DSAFETY -DXUSAFE -O2 -DNFAIR=3 -DCOLLAPSE -w -o pan pan.c
+./pan -m10000 -E -c1 -N agreement
+
+Verification result:
+warning: never claim + accept labels requires -a flag to fully verify
+pan: ltl formula agreement
+
+(Spin Version 6.5.2 -- 6 December 2019)
+	+ Partial Order Reduction
+	+ Compression
+
+Full statespace search for:
+	never claim         	+ (agreement)
+	assertion violations	+ (if within scope of claim)
+	cycle checks       	- (disabled by -DSAFETY)
+	invalid end states	- (disabled by -E flag)
+
+State-vector 156 byte, depth reached 242, errors: 0
+    11877 states, stored
+     3864 states, matched
+    15741 transitions (= stored+matched)
+    14200 atomic steps
+hash conflicts:         5 (resolved)
+
+Stats on memory usage (in Megabytes):
+    2.084	equivalent memory usage for states (stored*(State-vector + overhead))
+    0.762	actual memory usage for states (compression: 36.55%)
+         	state-vector as stored = 39 byte + 28 byte overhead
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  129.218	total actual memory usage
+
+
+nr of templates: [ 0:globals 1:chans 2:procs ]
+collapse counts: [ 0:1595 2:142 3:8 4:24 5:1 ]
+unreached in proctype reliable
+	consensus.pml:79, state 61, "v[(id-1)] = ithMajority"
+	consensus.pml:87, state 72, "printf('[%d] My value is %d\n',id,v[(id-1)])"
+	consensus.pml:90, state 73, "-end-"
+	(3 of 73 states)
+unreached in proctype faulty
+	consensus.pml:126, state 35, "-end-"
+	(1 of 35 states)
+unreached in init
+	(0 of 34 states)
+unreached in claim agreement
+	_spin_nvr.tmp:8, state 10, "-end-"
+	(1 of 10 states)
+
+pan: elapsed time 0.01 seconds
+
+
+Checking syntax and generating the pan.c verifier ...
+/run/current-system/sw/bin/spin -a consensus.pml
+ltl agreement: [] ((! (((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && ((outputs[3]!=2)))) || ((((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))) && ((outputs[2]==outputs[3]))))
+ltl validity: [] ((! ((((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && ((outputs[3]!=2))) && ((((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))) && ((inputs[2]==inputs[3]))))) || ((((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))) && ((outputs[2]==outputs[3]))))
+ltl validity_strong: [] ((! (((((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))) && ((inputs[2]==inputs[3]))) && (started))) || (((((v[0]==v[1])) && ((v[1]==v[2]))) && ((v[2]==v[3]))) && ((! (((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && ((outputs[3]!=2)))) || ((((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))) && ((outputs[2]==outputs[3]))))))
+ltl termination: <> (((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && ((outputs[3]!=2)))
+  the model contains 4 never claims: termination, validity_strong, validity, agreement
+  only one claim is used in a verification run
+  choose which one with ./pan -a -N name (defaults to -N agreement)
+  or use e.g.: spin -search -ltl agreement consensus.pml
+No Syntax Error.
+
+Starting verification...
+/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DSAFETY -DXUSAFE -O2 -DNFAIR=3 -DCOLLAPSE -w -o pan pan.c
+./pan -m10000 -E -c1 -N agreement
+
+Verification result:
+warning: never claim + accept labels requires -a flag to fully verify
+pan: ltl formula agreement
+Depth=     815 States=    1e+06 Transitions= 1.49e+06 Memory=   185.663	t=     1.08 R=   9e+05
+Depth=     815 States=    2e+06 Transitions= 2.96e+06 Memory=   238.495	t=      2.2 R=   9e+05
+Depth=     815 States=    3e+06 Transitions= 4.45e+06 Memory=   292.890	t=     3.37 R=   9e+05
+Depth=     815 States=    4e+06 Transitions= 5.92e+06 Memory=   345.136	t=     4.57 R=   9e+05
+Depth=     815 States=    5e+06 Transitions= 7.39e+06 Memory=   400.605	t=     5.81 R=   9e+05
+Depth=     815 States=    6e+06 Transitions=  8.8e+06 Memory=   459.101	t=     7.02 R=   9e+05
+Depth=     815 States=    7e+06 Transitions= 1.02e+07 Memory=   516.913	t=     8.26 R=   8e+05
+Depth=     815 States=    8e+06 Transitions= 1.17e+07 Memory=   567.792	t=     9.61 R=   8e+05
+Depth=     815 States=    9e+06 Transitions= 1.31e+07 Memory=   626.874	t=     10.9 R=   8e+05
+Depth=     815 States=    1e+07 Transitions= 1.45e+07 Memory=   681.952	t=     12.2 R=   8e+05
+Depth=     815 States=  1.1e+07 Transitions=  1.6e+07 Memory=   735.956	t=     13.7 R=   8e+05
+Depth=     815 States=  1.2e+07 Transitions= 1.75e+07 Memory=   786.542	t=     15.1 R=   8e+05
+Depth=     815 States=  1.3e+07 Transitions= 1.89e+07 Memory=   841.034	t=     16.5 R=   8e+05
+Depth=     815 States=  1.4e+07 Transitions= 2.04e+07 Memory=   895.136	t=       18 R=   8e+05
+Depth=     815 States=  1.5e+07 Transitions= 2.18e+07 Memory=   946.894	t=     19.6 R=   8e+05
+Depth=     815 States=  1.6e+07 Transitions= 2.33e+07 Memory=  1000.800	t=     21.1 R=   8e+05
+Depth=     815 States=  1.7e+07 Transitions= 2.47e+07 Memory=  1052.655	t=     22.6 R=   8e+05
+Depth=     815 States=  1.8e+07 Transitions= 2.62e+07 Memory=  1102.948	t=     24.3 R=   7e+05
+Depth=     815 States=  1.9e+07 Transitions= 2.77e+07 Memory=  1152.362	t=     25.8 R=   7e+05
+Depth=     815 States=    2e+07 Transitions= 2.92e+07 Memory=  1200.409	t=     27.3 R=   7e+05
+Depth=     815 States=  2.1e+07 Transitions= 3.07e+07 Memory=  1248.651	t=     28.9 R=   7e+05
+Depth=     815 States=  2.2e+07 Transitions= 3.21e+07 Memory=  1296.210	t=     30.4 R=   7e+05
+Depth=     815 States=  2.3e+07 Transitions= 3.36e+07 Memory=  1343.964	t=     32.1 R=   7e+05
+Depth=     819 States=  2.4e+07 Transitions= 3.51e+07 Memory=  1398.358	t=     33.7 R=   7e+05
+Depth=     819 States=  2.5e+07 Transitions= 3.66e+07 Memory=  1452.558	t=     35.2 R=   7e+05
+Depth=     819 States=  2.6e+07 Transitions= 3.81e+07 Memory=  1506.171	t=     36.8 R=   7e+05
+Depth=     819 States=  2.7e+07 Transitions= 3.96e+07 Memory=  1559.394	t=     38.3 R=   7e+05
+Depth=     819 States=  2.8e+07 Transitions= 4.11e+07 Memory=  1613.397	t=       40 R=   7e+05
+Depth=     819 States=  2.9e+07 Transitions= 4.25e+07 Memory=  1670.526	t=     41.6 R=   7e+05
+Depth=     819 States=    3e+07 Transitions= 4.39e+07 Memory=  1729.608	t=     43.3 R=   7e+05
+Depth=     819 States=  3.1e+07 Transitions= 4.54e+07 Memory=  1790.253	t=     45.1 R=   7e+05
+Depth=     819 States=  3.2e+07 Transitions= 4.68e+07 Memory=  1849.530	t=     46.8 R=   7e+05
+Depth=     819 States=  3.3e+07 Transitions= 4.82e+07 Memory=  1909.687	t=     48.7 R=   7e+05
+Depth=     819 States=  3.4e+07 Transitions= 4.97e+07 Memory=  1968.476	t=     50.5 R=   7e+05
+pan: resizing hashtable to -w26..  done
+Depth=     819 States=  3.5e+07 Transitions= 5.11e+07 Memory=  2525.886	t=     56.9 R=   6e+05
+Depth=     819 States=  3.6e+07 Transitions= 5.26e+07 Memory=  2585.554	t=     58.4 R=   6e+05
+Depth=     819 States=  3.7e+07 Transitions=  5.4e+07 Memory=  2644.538	t=     59.8 R=   6e+05
+Depth=     819 States=  3.8e+07 Transitions= 5.55e+07 Memory=  2704.011	t=     61.1 R=   6e+05
+Depth=     819 States=  3.9e+07 Transitions= 5.69e+07 Memory=  2764.753	t=     62.7 R=   6e+05
+Depth=     819 States=    4e+07 Transitions= 5.84e+07 Memory=  2824.519	t=     64.2 R=   6e+05
+Depth=     819 States=  4.1e+07 Transitions= 5.99e+07 Memory=  2885.456	t=     65.7 R=   6e+05
+Depth=     819 States=  4.2e+07 Transitions= 6.13e+07 Memory=  2945.710	t=     67.2 R=   6e+05
+Depth=     819 States=  4.3e+07 Transitions= 6.28e+07 Memory=  3002.155	t=     68.7 R=   6e+05
+Depth=     819 States=  4.4e+07 Transitions= 6.43e+07 Memory=  3054.694	t=     70.2 R=   6e+05
+Depth=     819 States=  4.5e+07 Transitions= 6.58e+07 Memory=  3109.480	t=     71.6 R=   6e+05
+Depth=     819 States=  4.6e+07 Transitions= 6.73e+07 Memory=  3161.530	t=     73.2 R=   6e+05
+Depth=     819 States=  4.7e+07 Transitions= 6.87e+07 Memory=  3217.390	t=     74.7 R=   6e+05
+Depth=     819 States=  4.8e+07 Transitions= 7.01e+07 Memory=  3276.667	t=     76.2 R=   6e+05
+Depth=     819 States=  4.9e+07 Transitions= 7.16e+07 Memory=  3333.698	t=     77.7 R=   6e+05
+Depth=     819 States=    5e+07 Transitions=  7.3e+07 Memory=  3388.483	t=     79.2 R=   6e+05
+Depth=     819 States=  5.1e+07 Transitions= 7.44e+07 Memory=  3447.077	t=     80.6 R=   6e+05
+Depth=     819 States=  5.2e+07 Transitions= 7.59e+07 Memory=  3502.937	t=     82.1 R=   6e+05
+Depth=     819 States=  5.3e+07 Transitions= 7.73e+07 Memory=  3559.382	t=     83.7 R=   6e+05
+Depth=     819 States=  5.4e+07 Transitions= 7.88e+07 Memory=  3612.702	t=     85.3 R=   6e+05
+Depth=     819 States=  5.5e+07 Transitions= 8.02e+07 Memory=  3668.562	t=     86.9 R=   6e+05
+Depth=     819 States=  5.6e+07 Transitions= 8.17e+07 Memory=  3724.714	t=     88.5 R=   6e+05
+Depth=     819 States=  5.7e+07 Transitions= 8.32e+07 Memory=  3778.522	t=     89.9 R=   6e+05
+Depth=     819 States=  5.8e+07 Transitions= 8.46e+07 Memory=  3833.503	t=     91.3 R=   6e+05
+Depth=     819 States=  5.9e+07 Transitions= 8.61e+07 Memory=  3888.288	t=     92.8 R=   6e+05
+Depth=     819 States=    6e+07 Transitions= 8.75e+07 Memory=  3941.511	t=     94.3 R=   6e+05
+
+(Spin Version 6.5.2 -- 6 December 2019)
+	+ Partial Order Reduction
+	+ Compression
+
+Full statespace search for:
+	never claim         	+ (agreement)
+	assertion violations	+ (if within scope of claim)
+	cycle checks       	- (disabled by -DSAFETY)
+	invalid end states	- (disabled by -E flag)
+
+State-vector 340 byte, depth reached 819, errors: 0
+ 60382525 states, stored
+ 27736730 states, matched
+ 88119255 transitions (= stored+matched)
+1.0620798e+08 atomic steps
+hash conflicts:  30437734 (resolved)
+
+Stats on memory usage (in Megabytes):
+21191.377	equivalent memory usage for states (stored*(State-vector + overhead))
+ 3450.113	actual memory usage for states (compression: 16.28%)
+         	state-vector as stored = 32 byte + 28 byte overhead
+  512.000	memory used for hash table (-w26)
+    0.534	memory used for DFS stack (-m10000)
+    1.020	memory lost to fragmentation
+ 3961.628	total actual memory usage
+
+
+nr of templates: [ 0:globals 1:chans 2:procs ]
+collapse counts: [ 0:4419295 2:402 3:30 4:46 5:1 ]
+unreached in proctype reliable
+	(0 of 74 states)
+unreached in proctype faulty
+	(0 of 36 states)
+unreached in init
+	(0 of 42 states)
+unreached in claim agreement
+	_spin_nvr.tmp:8, state 10, "-end-"
+	(1 of 10 states)
+
+pan: elapsed time 94.9 seconds
+pan: rate 636476.49 states/second
+
+
+Checking syntax and generating the pan.c verifier ...
+/run/current-system/sw/bin/spin -a consensus.pml
+ltl agreement: [] ((! ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))
+ltl validity: [] ((! (((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && (((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))
+ltl validity_strong: [] ((! ((((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))) && (started))) || ((((v[0]==v[1])) && ((v[1]==v[2]))) && ((! ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))))
+ltl termination: <> ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))
+  the model contains 4 never claims: termination, validity_strong, validity, agreement
+  only one claim is used in a verification run
+  choose which one with ./pan -a -N name (defaults to -N agreement)
+  or use e.g.: spin -search -ltl agreement consensus.pml
+No Syntax Error.
+
+Starting verification...
+/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DSAFETY -DXUSAFE -O2 -DNFAIR=3 -DCOLLAPSE -w -o pan pan.c
+./pan -m10000 -E -c1 -N agreement
+
+Verification result:
+warning: never claim + accept labels requires -a flag to fully verify
+pan: ltl formula agreement
+pan:1: assertion violated  !( !(( !((((outputs[0]!=2)&&(outputs[1]!=2))&&(outputs[2]!=2)))||((outputs[0]==outputs[1])&&(outputs[1]==outputs[2]))))) (at depth 557)
+pan: wrote consensus.pml.trail
+
+(Spin Version 6.5.2 -- 6 December 2019)
+Warning: Search not completed
+	+ Partial Order Reduction
+	+ Compression
+
+Full statespace search for:
+	never claim         	+ (agreement)
+	assertion violations	+ (if within scope of claim)
+	cycle checks       	- (disabled by -DSAFETY)
+	invalid end states	- (disabled by -E flag)
+
+State-vector 236 byte, depth reached 560, errors: 1
+   434528 states, stored
+   187744 states, matched
+   622272 transitions (= stored+matched)
+   650686 atomic steps
+hash conflicts:      1931 (resolved)
+
+Stats on memory usage (in Megabytes):
+  109.401	equivalent memory usage for states (stored*(State-vector + overhead))
+   20.491	actual memory usage for states (compression: 18.73%)
+         	state-vector as stored = 21 byte + 28 byte overhead
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  148.944	total actual memory usage
+
+
+nr of templates: [ 0:globals 1:chans 2:procs ]
+collapse counts: [ 0:38960 2:233 3:26 4:27 5:1 ]
+
+pan: elapsed time 0.39 seconds
+pan: rate 1114174.4 states/second
+
+
+Checking syntax and generating the pan.c verifier ...
+/run/current-system/sw/bin/spin -a consensus.pml
+ltl agreement: [] ((! ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))
+ltl validity: [] ((! (((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && (((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))
+ltl validity_strong: [] ((! ((((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))) && (started))) || ((((v[0]==v[1])) && ((v[1]==v[2]))) && ((! ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))) || (((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))))))
+ltl termination: <> ((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2)))
+  the model contains 4 never claims: termination, validity_strong, validity, agreement
+  only one claim is used in a verification run
+  choose which one with ./pan -a -N name (defaults to -N agreement)
+  or use e.g.: spin -search -ltl agreement consensus.pml
+No Syntax Error.
+
+Starting verification...
+/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DSAFETY -DXUSAFE -O2 -DNFAIR=3 -DCOLLAPSE -w -o pan pan.c
+./pan -m10000 -E -c1 -N agreement
+
+Verification result:
+warning: never claim + accept labels requires -a flag to fully verify
+pan: ltl formula agreement
+pan:1: assertion violated  !( !(( !((((outputs[0]!=2)&&(outputs[1]!=2))&&(outputs[2]!=2)))||((outputs[0]==outputs[1])&&(outputs[1]==outputs[2]))))) (at depth 557)
+pan: wrote consensus.pml.trail
+
+(Spin Version 6.5.2 -- 6 December 2019)
+Warning: Search not completed
+	+ Partial Order Reduction
+	+ Compression
+
+Full statespace search for:
+	never claim         	+ (agreement)
+	assertion violations	+ (if within scope of claim)
+	cycle checks       	- (disabled by -DSAFETY)
+	invalid end states	- (disabled by -E flag)
+
+State-vector 236 byte, depth reached 560, errors: 1
+   434528 states, stored
+   187744 states, matched
+   622272 transitions (= stored+matched)
+   650686 atomic steps
+hash conflicts:      1931 (resolved)
+
+Stats on memory usage (in Megabytes):
+  109.401	equivalent memory usage for states (stored*(State-vector + overhead))
+   20.491	actual memory usage for states (compression: 18.73%)
+         	state-vector as stored = 21 byte + 28 byte overhead
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  148.944	total actual memory usage
+
+
+nr of templates: [ 0:globals 1:chans 2:procs ]
+collapse counts: [ 0:38960 2:233 3:26 4:27 5:1 ]
+
+pan: elapsed time 0.37 seconds
+pan: rate   1174400 states/second
+
+

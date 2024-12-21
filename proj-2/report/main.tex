@@ -101,16 +101,18 @@
 
 \subsubsection*{Exercise 1.1 (b)}
 
-\drafter{Even thought that Promela / Spin also have an underlying transition system, modelling the modelling of this transition system in Spin is not trivial because there's not a one to one match between the two.}
-\drafter{In particular, one mismatch is that Promela has a single initial state whereas this transition system migth have two.}
-\drafter{Another problem was the fact that Promela might take stutter steps, which render the built-in $\mathsf{X}$ operator hard to use as it won't match the transitions system., a problem that is mention in Promela's reference manual.}
+% TODO:
 
-\drafter{The first problem was solved by adding a flag \texttt{started} to signal the start of the system.}
-\drafter{To ensure that the LTL formulas refered to the inital state of the transition system being modelled and not Promela, the formula $\Phi$ about the original transition system is modified to $\neg started~\mathsf{U}~(started~\wedge~\Phi)$ in Promela -- for $\Phi$ to hold in the transition system, the system might not have started, and when it starts the formula must hold.}
-\drafter{To address the problem caused by the combination of stutter-steps and the next operation, another flag \texttt{f} was added.}
-\drafter{This flag is inverted on every transition of the simluated transition system.}
-\drafter{This flag will be the state in two successive steps if and only if the step was a stutter.}
-\drafter{With this rewrite, the LTL formulas are encoded in the following way ($\texttt{moved} \triangleeq \texttt{f} \neq \mathsf{X}~\texttt{f}$).}
+% \drafter{Even thought that Promela / Spin also have an underlying transition system, modelling the modelling of this transition system in Spin is not trivial because there's not a one to one match between the two.}
+% \drafter{In particular, one mismatch is that Promela has a single initial state whereas this transition system migth have two.}
+% \drafter{Another problem was the fact that Promela might take stutter steps, which render the built-in $\mathsf{X}$ operator hard to use as it won't match the transitions system., a problem that is mention in Promela's reference manual.}
+%
+% \drafter{The first problem was solved by adding a flag \texttt{started} to signal the start of the system.}
+% \drafter{To ensure that the LTL formulas refered to the inital state of the transition system being modelled and not Promela, the formula $\Phi$ about the original transition system is modified to $\neg started~\mathsf{U}~(started~\wedge~\Phi)$ in Promela -- for $\Phi$ to hold in the transition system, the system might not have started, and when it starts the formula must hold.}
+% \drafter{To address the problem caused by the combination of stutter-steps and the next operation, another flag \texttt{f} was added.}
+% \drafter{This flag is inverted on every transition of the simluated transition system.}
+% \drafter{This flag will be the state in two successive steps if and only if the step was a stutter.}
+% \drafter{With this rewrite, the LTL formulas are encoded in the following way ($\texttt{moved} \triangleq \texttt{f} \neq \mathsf{X}~\texttt{f}$).}
 
 \begin{enumerate}[label=\roman*.]
   \item {\neg~\texttt{started}~\mathsf{U}~(\texttt{started} \wedge \lozenge~\square~$c$)}
@@ -136,44 +138,33 @@
 
 \subsection*{Exercise 1.2}
 
-% TODO: state definition of equivalence
+\drafter{Given that the exercise asks to state the equivalence or not of an LTL and a CTL formula, a definition and a theorem are restated for convenience \footnote{These are copied from Module 7 of the lecture notes}.}
 
-\idea{Theorem 7.16 of Module 7 of the lecture notes is restated here.}
+\drafter{\textbf{Definition} Let $\varphi$ be an LTL formula and $\alpha$ be a CTL formula (both over $\Xi$). Then, $\varphi$ and $\alpha$ are said to be equivalent, denoted by $\varphi \equiv \alpha$, if $T \models \varphi$ if and only if $T \models \alpha$.}
 
-\idea{\textbf{Theorem} Let $\alpha$ be a CTL formula and let $\phi$ be the LTL formula obtained from $\alpha$ by omitting all path quantifiers. Then,}
-\begin{align}
-    \idea{$\phi \equiv \alpha$ or there is no LTL formula that is equivalent to $\alpha$}
-\end{align}
-
-\idea{Given that in this exercise, each pair of formulas is a CTL and a LTL formula, this theorem will prove useful.}
-\idea{For each CTL formula, the corresponding LTL (obtained by omitting all path quantifiers is presented).}
-\idea{Then, the equivalent or not equivalence between the two is justified.}
+\drafter{\textbf{Theorem} Let $\alpha$ be a CTL formula and let $\varphi$ be the LTL formula obtained from $\alpha$ by omitting all path quantifiers. Then, $\varphi \equiv \alpha$ or there is no LTL formula that is equivalent to $\alpha$}
 
 \begin{enumerate}[label=(\alph*)]
-  \item Let $\alpha = \mathsf{A}~\mathsf{G}~\mathsf{A}~\mathsf{X}~p$ and $\psi = \mathsf{G}~\mathsf{X}~p$.
-        % The formula corresponding to $\alpha$ is $\phi = \mathsf{G}~\mathsf{X}~p$, which matches $\psi$.
+  \item Let $\alpha = \mathsf{A}~\mathsf{G}~\mathsf{A}~\mathsf{X}~p$ and $\varphi = \mathsf{G}~\mathsf{X}~p$.
 
     $\mathsf{A}~\mathsf{G}~\mathsf{A}~\mathsf{X}~p$ states that $\mathsf{A}~\mathsf{X}~p$ is an invariants, i.e., holds for every state in every path.
     $\mathsf{A}~\mathsf{X}~p$ states that $p$ holds in all successors.
     For this reason $\alpha$ states that $p$ holds in all states after the first.
 
-    $\phi$ states that $p$ holds everywhere but the first state.
+    $\varphi$ states that $p$ holds everywhere but the first state (it might or not hold in the first state).
 
-    So they are equivalent.
-
-  \item Let $\alpha = \mathsf{A}~\mathsf{F}~\mathsf{A}~\mathsf{X}~p$ and $\psi = \mathsf{F}~\mathsf{X}~p$.
-    % The formula corresponding to $\alpha$ is $\phi = \mathsf{F}~\mathsf{X}~p$.
+  \item Let $\alpha = \mathsf{A}~\mathsf{F}~\mathsf{A}~\mathsf{X}~p$ and $\varphi = \mathsf{F}~\mathsf{X}~p$.
+    % The formula corresponding to $\alpha$ is $\varphi = \mathsf{F}~\mathsf{X}~p$.
     $\mathsf{A}~\mathsf{F}~\mathsf{A}~\mathsf{X}~p$ states that in all paths eventually a state will be such where all sucessors satisfy $p$.
     A transition system satisfies $\mathsf{F}~\mathsf{X}~p$ if all its traces eventually have a states that is not initial that satisfies $p$.
-
-    Not equivalent.
+    These are not equivalent and proved by the following counter-example, which satisfies $\varphi$ but not $\alpha$.
 
     \begin{figure}[ht]
       \centering
       \begin{tikzpicture}
         \node[state, initial,label=below:{\{\}}] (q1) {$s_0$};
         \node[state, right of=q1,label=below:{\{\}}] (q2) {$s_1$};
-        \node[state, right of=q2,label=below:{\{p\}}] (q3) {$s_2$};
+        \node[state, right of=q2,label=below:{\{$p$\}}] (q3) {$s_2$};
         \node[state, right of=q3,label=below:{\{\}}] (q4) {$s_3$};
         \node[state, right of=q4,label=below:{\{\}}] (q5) {$s_4$};
 
@@ -189,18 +180,16 @@
     \end{figure}
 
   % TODO:
-  \item Let $\alpha = \mathsf{A}~\mathsf{F}~p \vee \mathsf{A}~\mathsf{F}~q$ and $\psi = \mathsf{F}~(p \vee q)$.
-    The formula corresponding to $\alpha$ is $\mathsf{F}~p \vee \mathsf{F}~q$.
-    Clearly, $\phi \equiv \psi$, so $\alpha \equiv \psi$.
-
-    Not equivalent.
+  \item Let $\alpha = \mathsf{A}~\mathsf{F}~p \vee \mathsf{A}~\mathsf{F}~q$ and $\varphi = \mathsf{F}~(p \vee q)$.
+    The formula corresponding to $\alpha$ without the path quantifiers is $\psi = \mathsf{F}~p \vee \mathsf{F}~q$.
+    $psi$ and $\alpha$ are not equivalent as demonstrated by the following transition system that satisfies the former, but not the latter:
 
     \begin{figure}[ht]
       \centering
       \begin{tikzpicture}
         \node[state, initial,label=below:{\{\}}] (q1) {$s_0$};
-        \node[state, right of=q1, label=below:{\{p\}}] (q2) {$s_1$};
-        \node[state, right of=q2, label=below:{\{q\}}] (q3) {$s_2$};
+        \node[state, right of=q1, label=below:{\{$p$\}}] (q2) {$s_1$};
+        \node[state, right of=q2, label=below:{\{$q$\}}] (q3) {$s_2$};
 
         \draw (q1) edge[] (q2)
               (q1) edge[bend left] (q3)
@@ -211,64 +200,79 @@
       \label{fig:1-2-c}
     \end{figure}
 
-\end{enumerate}
+  Given that $\alpha$ is not equivalent to $\psi$, there's no LTL formula equivalent to $\alpha$ by the previous theorem.
+  So $\alpha$ and $\varphi$ are not equivalent.
 
-% TODO: add proofs / counter example
+\end{enumerate}
 
 \section*{Exercise 2}
 
 \subsection*{Exercise 2.1}
 
-\idea{The encoding of properties provided is the following (this is also in file \texttt{road\_ltl.pml}):}
+\drafter{The encoding of properties provided is the following:}
 
 \begin{enumerate}[label=(\alph*)]
-  \item $\mathsf{G}\neg(\texttt{W\_LIGHT} \wedge \texttt{E\_LIGHT})$
+  \item $\mathsf{G}~\neg(\texttt{W\_LIGHT} \wedge \texttt{E\_LIGHT})$
 
   \item $\mathsf{G}(\texttt{W\_LIGHT} \rightarrow \mathsf{F}~\neg\texttt{W\_LIGHT} \wedge \texttt{E\_LIGHT} \rightarrow \mathsf{F}~\neg\texttt{E\_LIGHT})$
 
-  \item $\mathsf{G}(\texttt{on\_lane} \rightarrow \mathsf{F}\neg\texttt{on\_lane})$
+  \item $\mathsf{G}(\texttt{on\_lane} \rightarrow \mathsf{F}~\neg\texttt{on\_lane})$
 
-  \item $\mathsf{G}((\texttt{W\_LIGHT} \wedge \texttt{on\_lane}) \rightarrow \neg\texttt{E\_LIGHT})$
-  % TODO: discuss subtleties in modelling this one
+  \item $\mathsf{G}((\texttt{W\_LIGHT} \wedge \texttt{on\_lane}) \rightarrow (\neg\texttt{E\_LIGHT}~\mathsf{W}~\neg\texttt{on\_lane}))$
 
   \item $\mathsf{G}(\texttt{at\_w} \rightarrow \mathsf{F}~\texttt{W\_LIGHT})$
 \end{enumerate}
 
 \subsection*{Exercise 2.2}
 
-\idea{A safety property is one where words not in the language are finite and a liveness properti is one where words not in the language are infinite.}
-\idea{Formally (and paraphrasing from Module 4 of the lecture notes):}
+\drafter{For convinience the definition of safety and liveness properties are restated (this is taken from Module 4 of the lecture notes):}
 
-\idea{A property is said to be a combination when \blah{}.}
+\drafter{\textbf{Definition} An LT property $P_{safe}$ over $\Xi$ is called a safety property if for all words $\sigma \in (2^\Xi)^\omega \ P_{safe}$ there exists a finite prefix $\hat{\sigma}$ of $\sigma$ such that $P_{safe} \cap \{\sigma' \in (2^\Xi)^\omega~|~\hat{\sigma}$ is a finite prefix of $\sigma' \} = \emptyset $}.
 
-\idea{With this the definitions just presented, the formulas can be classified in the following manner.}
+\drafter{\textbf{Definition} An LT property $P_{live}$ over $\Xi$ is called a liveness property if $pref(P_{live}) = (2^{\Xi})^*$}.
+
+\drafter{Put simple, a property is a safety property if all words that are not in the language are not in the language because of a prefix -- any other word with that same prefix won't be in the language either (because in that prefix something bad happened) and a liveness property is one for each all finite prefixes are prefixes of some word in the language (become something good might still happen).}
+
+\drafter{With the definitions just presented, the formulas can be classified in the following manner.}
 
 \begin{enumerate}[label=(\alph*)]
-  \item Safety property:
+  \item \drafter{Safety property: a trace where this is violated is a trace where two traffic lights are green at the same time. This is a finite trace and any trace for which this is a prefix won't be in the language.}
 
-  \item Liveness property:
+  \item \drafter{Liveness property: a finite trace where the traffic-light is green can always be extended to a good trace by making the light go red.}
 
-  \item Liveness property:
+  \item \drafter{Liveness property: a finite trace where there are cars on the shared lane can be extended to a good trace by making the cars leave the shared lane.}
 
-  \item Safety property:
+  \item \drafter{Safety property: this property is violated by having an instant where the west traffic-light is green and there's a car in the shared lane and still the east traffic-light is also green. Any word not in the language must have such a bad prefix and any word with such a bad prefix won't be in the language.}
 
-  \item Liveness property:
+  \item \drafter{Liveness property: a trace that is not in this language is one where there was at some point a car waiting and the west traffic-light never turned green. Any prefix of this word is such that it can be extended so that a word in the language is obtained -- by turning the light green.}
 
 \end{enumerate}
 
 \subsection*{Exercise 2.3}
 
-\idea{The counter example provided by Spin is the following (the detailed text file is provided as well).}
+\drafter{As requested, the LTL formulas were written to \texttt{road\_ltl.pml} and Spin was used to check if model satisfies properties -- Spin's output of running the model can be found at \texttt{extras/spin\allowbreak-output-2.3.*.txt}.}
+\drafter{The (very simplified) counter example provided by Spin was the following\footnote{The complete example is available in the \texttt{extras}}:}
 
-% TODO: paste counter example
+\begin{enumerate}
+  \item Car at east
+  \item Car at west
+  \item Car to shared
+  \item Car exits shared
+  \item In loop:
+  \begin{enumerate}[label=\theenumi.\arabic*.]
+    \item Car at east
+    \item Car to shared
+    \item Car exits shared
+  \end{enumerate}
+\end{enumerate}
 
 \subsection*{Exercise 2.4}
 
-\idea{The initial model fails to satisfy property (e) because it does truly ensure fairness.}
-\idea{Weak fairness relies on an action being continuously enabled, but that does not happen.}
-\idea{If one car crosses, the safety properties prevent the other from crossing and safety disables it.}
-\idea{So a stronger notion of safety is required -- that if west just passed, it can only go if east it not waiting.}
-\idea{This can be done by having a single flag for this.}
+\drafter{The initial model fails to satisfy property (e) because it does truly ensure fairness.}
+\drafter{Weak fairness relies on an action being continuously enabled, but that does not happen.}
+\drafter{If one car crosses, the safety properties prevent the other from crossing and safety disables it.}
+\drafter{So a stronger notion of safety is required -- that if west just passed, it can only go if east it not waiting.}
+\drafter{This can be done by having a single flag for this.}
 
 \section*{Exercise 3}
 
@@ -278,11 +282,11 @@
 
 \subsection*{Exercise 3.2}
 
-\idea{The protocol should satisfy three properties: agreement, validity and termination.}
-\idea{For the purposes of specifying the formulas, let $inputs_i \in \{0,1\}$ denote the inputs of process $P_i for i \in \{1, .., |N|\}$ and $outputs_i \in \{0,1, \bot\}$ denote the output ($\bot$ is process hasn't outputed yet).}
-\idea{Note that this is only defined for correct processes.}
-\idea{For convenience let $done \triangleq \bigwedge_{i \in \{1, .., |N|\}} outputs_i \neq \bot$, given an array $v$, $allSame(v) \triangleq \exists x \, \forall y \in v \, (x = y)$.}
-\idea{The encoding of these properties as LTL formulas is the following.}
+\drafter{The protocol should satisfy three properties: agreement, validity and termination.}
+\drafter{For the purposes of specifying the formulas, let $inputs_i \in \{0,1\}$ denote the inputs of process $P_i for i \in \{1, .., |N|\}$ and $outputs_i \in \{0,1, \bot\}$ denote the output ($\bot$ is process hasn't outputed yet).}
+\drafter{Note that this is only defined for correct processes.}
+\drafter{For convenience let $done \triangleq \bigwedge_{i \in \{1, .., |N|\}} outputs_i \neq \bot$, given an array $v$, $allSame(v) \triangleq \exists x \, \forall y \in v \, (x = y)$.}
+\drafter{The encoding of these properties as LTL formulas is the following.}
 
 \begin{itemize}
   \item Agreement: $\square (done \rightarrow allSame(outputs))$
@@ -290,20 +294,23 @@
   \item Termination: $\lozenge~done$
 \end{itemize}
 
-\idea{We noted that the validity property that the project statement specified was different from what the paper specified and from what is Distributed System's usual notion of validity.}
-\idea{The previous definition refered to the latter.}
-\idea{For completeness the former, which requires the intermediate values to be uniform throughput the execution, is specified (we call it strong validity):}
-\idea{For this we need to assume a common vector $v$ where $v_i$ is the value of process $i$.}
+\drafter{We noted that the validity property that the project statement specified was different from what the paper specified and from what is Distributed System's usual notion of validity.}
+\drafter{The previous definition refered to the latter.}
+\drafter{For completeness the former, which requires the intermediate values to be uniform throughput the execution, is specified (we call it strong validity):}
+\drafter{For this we need to assume a common vector $v$ where $v_i$ is the value of process $i$.}
 
 \begin{itemize}
-  \item Strong validity: $\square (allSame(inputs) \rightarrow (allSame(v) \wedge (done \implies allSame(outputs))))$
+  \item Strong validity: $\square (allSame(inputs) \rightarrow (allSame(v) \wedge (done \rightarrow allSame(outputs))))$
 \end{itemize}
 
 \subsection*{Exercise 3.3}
 
-% TODO: hand output
+\drafter{As requested, Spin's output of running the model can be found at \texttt{extras/spin-output-3.3.*.txt}.}
 
 \subsection*{Exercise 3.4}
+
+\drafter{To check that this condition is indeed required, the number of faulty nodes was increase.}
+\drafter{A single extra faulty process was added by setting \texttt{T} to 2.}
 
 % TODO: hand output
 

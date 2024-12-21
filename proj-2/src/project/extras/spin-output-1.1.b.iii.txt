@@ -1,127 +1,64 @@
 Checking syntax and generating the pan.c verifier ...
 /run/current-system/sw/bin/spin -a ex1-temporal-logic.pml
-ltl pi: (! (started)) U ((started) && (<> ([] (c))))
-ltl pii: (! (started)) U ((started) && ([] (<> (c))))
-ltl piii: (! (started)) U ((started) && ((! (((X (! (c))) && (((f) && (! (X (f)))) || ((! (f)) && (X (f))))) && (X (((f) && (! (X (f)))) || ((! (f)) && (X (f))))))) || (X (X (c)))))
-ltl piv: (! (started)) U ((started) && ([] (a)))
-ltl pv: (! (started)) U ((started) && ((a) U ([] ((b) || (c)))))
-  the model contains 5 never claims: pv, piv, piii, pii, pi
+ltl p1: X (<> ([] (c)))
+ltl p2: X ([] (<> (c)))
+ltl p3: X ((! (X (! (c)))) || (X (X (c))))
+ltl p4: X ([] (a))
+ltl p5: X ((a) U ([] ((b) || (c))))
+  the model contains 5 never claims: p5, p4, p3, p2, p1
   only one claim is used in a verification run
-  choose which one with ./pan -a -N name (defaults to -N pi)
-  or use e.g.: spin -search -ltl pi ex1-temporal-logic.pml
+  choose which one with ./pan -a -N name (defaults to -N p1)
+  or use e.g.: spin -search -ltl p1 ex1-temporal-logic.pml
 No Syntax Error.
 
 Starting verification...
-/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DXUSAFE -O2 -DNFAIR=3 -DCOLLAPSE -w -o pan pan.c
-./pan -m10000 -a -f -c1 -N piii
+/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DSAFETY -DXUSAFE -O2 -DNFAIR=3 -DCOLLAPSE -w -o pan pan.c
+./pan -m10000 -E -c1 -N p3
 
 Verification result:
-pan: ltl formula piii
+warning: never claim + accept labels requires -a flag to fully verify
+pan: ltl formula p3
 
 (Spin Version 6.5.2 -- 6 December 2019)
 	+ Partial Order Reduction
 	+ Compression
 
 Full statespace search for:
-	never claim         	+ (piii)
+	never claim         	+ (p3)
 	assertion violations	+ (if within scope of claim)
-	acceptance   cycles 	+ (fairness enabled)
-	invalid end states	- (disabled by never claim)
+	cycle checks       	- (disabled by -DSAFETY)
+	invalid end states	- (disabled by -E flag)
 
-State-vector 36 byte, depth reached 8, errors: 0
-       19 states, stored (35 visited)
-        5 states, matched
-       40 transitions (= visited+matched)
+State-vector 20 byte, depth reached 6, errors: 0
+        8 states, stored
+        1 states, matched
+        9 transitions (= stored+matched)
         0 atomic steps
 hash conflicts:         0 (resolved)
 
 Stats on memory usage (in Megabytes):
-    0.001	equivalent memory usage for states (stored*(State-vector + overhead))
-    0.199	actual memory usage for states
+    0.000	equivalent memory usage for states (stored*(State-vector + overhead))
+    0.269	actual memory usage for states
   128.000	memory used for hash table (-w24)
     0.534	memory used for DFS stack (-m10000)
   128.730	total actual memory usage
 
 
 nr of templates: [ 0:globals 1:chans 2:procs ]
-collapse counts: [ 0:5 2:7 5:6 ]
-unreached in proctype TransitionSystem
-	ex1-temporal-logic.pml:44, state 23, "c = 1"
-	ex1-temporal-logic.pml:44, state 24, "printf('moving to 3\n')"
-	ex1-temporal-logic.pml:44, state 25, "f = !(f)"
-	ex1-temporal-logic.pml:45, state 30, "c = 0"
-	ex1-temporal-logic.pml:45, state 31, "printf('moving to 4\n')"
-	ex1-temporal-logic.pml:45, state 32, "f = !(f)"
-	ex1-temporal-logic.pml:47, state 39, "c = 0"
-	ex1-temporal-logic.pml:47, state 40, "printf('moving to 4\n')"
-	ex1-temporal-logic.pml:47, state 41, "f = !(f)"
-	ex1-temporal-logic.pml:48, state 46, "c = 0"
-	ex1-temporal-logic.pml:48, state 47, "printf('moving to 4\n')"
-	ex1-temporal-logic.pml:48, state 48, "f = !(f)"
-	ex1-temporal-logic.pml:51, state 54, "c = 1"
-	ex1-temporal-logic.pml:51, state 55, "printf('moving to 2\n')"
-	ex1-temporal-logic.pml:51, state 56, "f = !(f)"
-	ex1-temporal-logic.pml:52, state 61, "c = 1"
-	ex1-temporal-logic.pml:52, state 62, "printf('moving to 3\n')"
-	ex1-temporal-logic.pml:52, state 63, "f = !(f)"
-	ex1-temporal-logic.pml:53, state 68, "c = 1"
-	ex1-temporal-logic.pml:53, state 69, "printf('moving to 5\n')"
-	ex1-temporal-logic.pml:53, state 70, "f = !(f)"
-	ex1-temporal-logic.pml:51, state 72, "(1)"
-	ex1-temporal-logic.pml:51, state 72, "(1)"
-	ex1-temporal-logic.pml:51, state 72, "(1)"
-	ex1-temporal-logic.pml:57, state 78, "c = 0"
-	ex1-temporal-logic.pml:57, state 79, "printf('moving to 4\n')"
-	ex1-temporal-logic.pml:57, state 80, "f = !(f)"
-	ex1-temporal-logic.pml:58, state 85, "c = 1"
-	ex1-temporal-logic.pml:58, state 86, "printf('moving to 5\n')"
-	ex1-temporal-logic.pml:58, state 87, "f = !(f)"
-	ex1-temporal-logic.pml:57, state 89, "(1)"
-	ex1-temporal-logic.pml:57, state 89, "(1)"
-	ex1-temporal-logic.pml:61, state 94, "-end-"
-	(30 of 94 states)
-unreached in claim piii
-	_spin_nvr.tmp:116, state 33, "((((((!(c)&&!(c))&&!(f))&&f)&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:116, state 33, "((((((!(c)&&!(f))&&!(c))&&!(f))&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:116, state 33, "((((((!(c)&&!(c))&&!(f))&&!(started))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:116, state 33, "((((((!(c)&&!(f))&&!(c))&&!(f))&&!(started))&&(!(f)||f)))"
-	_spin_nvr.tmp:116, state 33, "(((((((!(c)&&!(!(started)))&&!(c))&&!(f))&&f)&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:116, state 33, "(((((((!(c)&&!(f))&&!(!(started)))&&!(c))&&!(f))&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:116, state 33, "(((((((!(c)&&!(!(started)))&&!(c))&&!(f))&&!(started))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:116, state 33, "(((((((!(c)&&!(f))&&!(!(started)))&&!(c))&&!(f))&&!(started))&&(!(f)||f)))"
-	_spin_nvr.tmp:182, state 124, "(((!(c)&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:182, state 124, "((((!(c)&&!(f))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:188, state 130, "((!(c)&&!(f)))"
-	_spin_nvr.tmp:193, state 149, "((((((!(c)&&!(c))&&!(f))&&!(started))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:193, state 149, "((((((!(c)&&!(c))&&!(f))&&f)&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:193, state 149, "(((((((!(c)&&!(!(started)))&&!(c))&&!(f))&&!(started))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:193, state 149, "(((((((!(c)&&!(f))&&!(c))&&!(f))&&f)&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:193, state 149, "(((((((!(c)&&!(f))&&!(c))&&!(f))&&!(started))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:193, state 149, "(((((((!(c)&&!(!(started)))&&!(c))&&!(f))&&f)&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:193, state 149, "((((((((!(c)&&!(f))&&!(!(started)))&&!(c))&&!(f))&&f)&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:193, state 149, "((((((((!(c)&&!(f))&&!(!(started)))&&!(c))&&!(f))&&!(started))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:205, state 156, "(((((!(c)&&!(c))&&!(f))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:205, state 156, "(((((!(c)&&!(f))&&!(c))&&!(f))&&(!(f)||f)))"
-	_spin_nvr.tmp:211, state 175, "(((((!(c)&&!(c))&&f)&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:211, state 175, "((((((!(c)&&!(f))&&!(c))&&f)&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:211, state 175, "(((((!(c)&&!(c))&&!(started))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:211, state 175, "((((((!(c)&&!(f))&&!(c))&&!(started))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:211, state 175, "((((((!(c)&&!(!(started)))&&!(c))&&f)&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:211, state 175, "(((((((!(c)&&!(f))&&!(!(started)))&&!(c))&&f)&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:211, state 175, "((((((!(c)&&!(!(started)))&&!(c))&&!(started))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:211, state 175, "(((((((!(c)&&!(f))&&!(!(started)))&&!(c))&&!(started))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:223, state 191, "((((!(c)&&f)&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:223, state 191, "(((((!(f)&&!(c))&&f)&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:223, state 191, "(((!(c)&&!(started))&&f))"
-	_spin_nvr.tmp:223, state 191, "(((((!(!(started))&&!(c))&&f)&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:223, state 191, "((((((!(f)&&!(!(started)))&&!(c))&&f)&&(!(started)||(!(f)||f)))&&(!(f)||f)))"
-	_spin_nvr.tmp:223, state 191, "((((!(!(started))&&!(c))&&!(started))&&f))"
-	_spin_nvr.tmp:233, state 198, "(((((!(c)&&!(c))&&!(f))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:233, state 198, "((((((!(c)&&!(f))&&!(c))&&!(f))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:239, state 205, "((((!(c)&&!(c))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:239, state 205, "(((((!(c)&&!(f))&&!(c))&&f)&&(!(f)||f)))"
-	_spin_nvr.tmp:245, state 211, "((!(c)&&f))"
-	_spin_nvr.tmp:249, state 215, "-end-"
-	(11 of 215 states)
+collapse counts: [ 0:6 2:6 5:4 ]
+unreached in proctype P
+	ex1-temporal-logic.pml:34, state 34, "c = 0"
+	ex1-temporal-logic.pml:46, state 58, "b = 1"
+	ex1-temporal-logic.pml:46, state 59, "c = 0"
+	ex1-temporal-logic.pml:46, state 60, "clock = 0"
+	ex1-temporal-logic.pml:47, state 64, "b = 1"
+	ex1-temporal-logic.pml:47, state 65, "c = 1"
+	ex1-temporal-logic.pml:50, state 70, "-end-"
+	(7 of 70 states)
+unreached in claim p3
+	_spin_nvr.tmp:58, state 23, "-end-"
+	(1 of 23 states)
 
 pan: elapsed time 0 seconds
+
+

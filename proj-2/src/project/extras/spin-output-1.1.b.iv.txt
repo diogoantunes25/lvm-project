@@ -1,23 +1,24 @@
 Checking syntax and generating the pan.c verifier ...
 /run/current-system/sw/bin/spin -a ex1-temporal-logic.pml
-ltl pi: (! (started)) U ((started) && (<> ([] (c))))
-ltl pii: (! (started)) U ((started) && ([] (<> (c))))
-ltl piii: (! (started)) U ((started) && ((! (((X (! (c))) && (((f) && (! (X (f)))) || ((! (f)) && (X (f))))) && (X (((f) && (! (X (f)))) || ((! (f)) && (X (f))))))) || (X (X (c)))))
-ltl piv: (! (started)) U ((started) && ([] (a)))
-ltl pv: (! (started)) U ((started) && ((a) U ([] ((b) || (c)))))
-  the model contains 5 never claims: pv, piv, piii, pii, pi
+ltl p1: X (<> ([] (c)))
+ltl p2: X ([] (<> (c)))
+ltl p3: X ((! (X (! (c)))) || (X (X (c))))
+ltl p4: X ([] (a))
+ltl p5: X ((a) U ([] ((b) || (c))))
+  the model contains 5 never claims: p5, p4, p3, p2, p1
   only one claim is used in a verification run
-  choose which one with ./pan -a -N name (defaults to -N pi)
-  or use e.g.: spin -search -ltl pi ex1-temporal-logic.pml
+  choose which one with ./pan -a -N name (defaults to -N p1)
+  or use e.g.: spin -search -ltl p1 ex1-temporal-logic.pml
 No Syntax Error.
 
 Starting verification...
-/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DXUSAFE -O2 -DNFAIR=3 -DCOLLAPSE -w -o pan pan.c
-./pan -m10000 -a -f -c1 -N piv
+/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DSAFETY -DXUSAFE -O2 -DNFAIR=3 -DCOLLAPSE -w -o pan pan.c
+./pan -m10000 -E -c1 -N p4
 
 Verification result:
-pan: ltl formula piv
-pan:1: assertion violated  !(( !( !(started))&& !(a))) (at depth 46)
+warning: never claim + accept labels requires -a flag to fully verify
+pan: ltl formula p4
+pan:1: assertion violated  !( !(a)) (at depth 4)
 pan: wrote ex1-temporal-logic.pml.trail
 
 (Spin Version 6.5.2 -- 6 December 2019)
@@ -26,334 +27,90 @@ Warning: Search not completed
 	+ Compression
 
 Full statespace search for:
-	never claim         	+ (piv)
+	never claim         	+ (p4)
 	assertion violations	+ (if within scope of claim)
-	acceptance   cycles 	+ (fairness enabled)
-	invalid end states	- (disabled by never claim)
+	cycle checks       	- (disabled by -DSAFETY)
+	invalid end states	- (disabled by -E flag)
 
-State-vector 36 byte, depth reached 47, errors: 1
-       24 states, stored
-        8 states, matched
-       32 transitions (= stored+matched)
+State-vector 20 byte, depth reached 4, errors: 1
+        3 states, stored
+        0 states, matched
+        3 transitions (= stored+matched)
         0 atomic steps
 hash conflicts:         0 (resolved)
 
 Stats on memory usage (in Megabytes):
-    0.002	equivalent memory usage for states (stored*(State-vector + overhead))
-    0.199	actual memory usage for states
+    0.000	equivalent memory usage for states (stored*(State-vector + overhead))
+    0.269	actual memory usage for states
   128.000	memory used for hash table (-w24)
     0.534	memory used for DFS stack (-m10000)
   128.730	total actual memory usage
 
 
 nr of templates: [ 0:globals 1:chans 2:procs ]
-collapse counts: [ 0:6 2:11 6:4 ]
+collapse counts: [ 0:3 2:3 6:3 ]
 
 pan: elapsed time 0 seconds
 
+
 /run/current-system/sw/bin/spin -X -p -s -r -v -g -l -k ex1-temporal-logic.pml.trail -u10000 ex1-temporal-logic.pml
 
-ltl pi: (! (started)) U ((started) && (<> ([] (c))))
-ltl pii: (! (started)) U ((started) && ([] (<> (c))))
-ltl piii: (! (started)) U ((started) && ((! (((X (! (c))) && (((f) && (! (X (f)))) || ((! (f)) && (X (f))))) && (X (((f) && (! (X (f)))) || ((! (f)) && (X (f))))))) || (X (X (c)))))
-ltl piv: (! (started)) U ((started) && ([] (a)))
-ltl pv: (! (started)) U ((started) && ((a) U ([] ((b) || (c)))))
+ltl p1: X (<> ([] (c)))
+ltl p2: X ([] (<> (c)))
+ltl p3: X ((! (X (! (c)))) || (X (X (c))))
+ltl p4: X ([] (a))
+ltl p5: X ((a) U ([] ((b) || (c))))
 starting claim 4
 using statement merging
-MSC: ~G line 253
-  1:	proc  - (piv:1) _spin_nvr.tmp:253 (state 1)	[((!(a)||!(started)))]
+MSC: ~G line 62
+  1:	proc  - (p4:1) _spin_nvr.tmp:62 (state 1)	[(1)]
 
-Never claim moves to line 253	[((!(a)||!(started)))]
-  2:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:34 (state 1)	[(1)]
+Never claim moves to line 62	[(1)]
+  2:	proc  0 (P:1) ex1-temporal-logic.pml:20 (state 1)	[(1)]	<merge 0 now @2>
 
-MSC: ~G line 260
-  3:	proc  - (piv:1) _spin_nvr.tmp:260 (state 13)	[((!(a)||!(started)))]
+  2:	proc  0 (P:1) ex1-temporal-logic.pml:20 (state 2)	[a = 1]	<merge 26 now @3>
+		a = 1
 
-Never claim moves to line 260	[((!(a)||!(started)))]
-  4:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:34 (state 2)	[a = 1]	<merge 18 now @3>
+  2:	proc  0 (P:1) ex1-temporal-logic.pml:20 (state 3)	[b = 0]	<merge 26 now @4>
+		a = 1
 
-  4:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:34 (state 3)	[b = 0]	<merge 18 now @4>
+  2:	proc  0 (P:1) ex1-temporal-logic.pml:20 (state 4)	[c = 0]	<merge 26 now @26>
+		a = 1
 
-  4:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:34 (state 4)	[c = 0]	<merge 18 now @5>
+MSC: ~G line 67
+  3:	proc  - (p4:1) _spin_nvr.tmp:67 (state 9)	[(1)]
 
-moving to 1
-  4:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:34 (state 5)	[printf('moving to 1\\n')]	<merge 18 now @6>
+Never claim moves to line 67	[(1)]
+  4:	proc  0 (P:1) ex1-temporal-logic.pml:26 (state 14)	[(1)]	<merge 0 now @15>
 
-  4:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:34 (state 6)	[f = !(f)]	<merge 18 now @17>
-		f = 1
-
-starting
-  4:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:38 (state 17)	[printf('starting\\n')]	<merge 18 now @18>
-		f = 1
-
-MSC: ~G line 253
-  5:	proc  - (piv:1) _spin_nvr.tmp:253 (state 1)	[((!(a)||!(started)))]
-
-Never claim moves to line 253	[((!(a)||!(started)))]
-  6:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:39 (state 18)	[started = 1]
-		started = 1
-
-MSC: ~G line 261
-  7:	proc  - (piv:1) _spin_nvr.tmp:261 (state 15)	[(1)]
-
-Never claim moves to line 261	[(1)]
-  8:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:42 (state 19)	[((((a==1)&&(b==0))&&(c==0)))]
-
-MSC: ~G line 280
-  9:	proc  - (piv:1) _spin_nvr.tmp:280 (state 47)	[(1)]
-
-Never claim moves to line 280	[(1)]
- 10:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:44 (state 20)	[(1)]
-
- 11:	proc  - (piv:1) _spin_nvr.tmp:280 (state 47)	[(1)]
-
- 12:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:44 (state 21)	[a = 0]	<merge 91 now @22>
+  4:	proc  0 (P:1) ex1-temporal-logic.pml:26 (state 15)	[a = 0]	<merge 36 now @16>
 		a = 0
 
- 12:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:44 (state 22)	[b = 1]	<merge 91 now @23>
+  4:	proc  0 (P:1) ex1-temporal-logic.pml:26 (state 16)	[b = 1]	<merge 36 now @17>
 		a = 0
 		b = 1
 
- 12:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:44 (state 23)	[c = 1]	<merge 91 now @24>
+  4:	proc  0 (P:1) ex1-temporal-logic.pml:26 (state 17)	[c = 1]	<merge 36 now @36>
 		a = 0
 		b = 1
 		c = 1
 
-moving to 3
- 12:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:44 (state 24)	[printf('moving to 3\\n')]	<merge 91 now @25>
-		a = 0
-		b = 1
-		c = 1
-
- 12:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:44 (state 25)	[f = !(f)]	<merge 91 now @91>
-		a = 0
-		b = 1
-		c = 1
-		f = 0
-
-MSC: ~G line 279
- 13:	proc  - (piv:1) _spin_nvr.tmp:279 (state 45)	[(!(a))]
-
-Never claim moves to line 279	[(!(a))]
- 14:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:48 (state 43)	[((((a==0)&&(b==1))&&(c==1)))]
-
-MSC: ~G line 260
- 15:	proc  - (piv:1) _spin_nvr.tmp:260 (state 13)	[((!(a)||!(started)))]
-
-Never claim moves to line 260	[((!(a)||!(started)))]
- 16:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:48 (state 44)	[a = 0]	<merge 91 now @45>
-
- 16:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:48 (state 45)	[b = 1]	<merge 91 now @46>
-
- 16:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:48 (state 46)	[c = 0]	<merge 91 now @47>
-		c = 0
-
-moving to 4
- 16:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:48 (state 47)	[printf('moving to 4\\n')]	<merge 91 now @48>
-		c = 0
-
- 16:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:48 (state 48)	[f = !(f)]	<merge 91 now @91>
-		c = 0
-		f = 1
-
-MSC: ~G line 253
- 17:	proc  - (piv:1) _spin_nvr.tmp:253 (state 1)	[((!(a)||!(started)))]
-
-Never claim moves to line 253	[((!(a)||!(started)))]
- 18:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:49 (state 50)	[((((a==0)&&(b==1))&&(c==0)))]
-
-MSC: ~G line 260
- 19:	proc  - (piv:1) _spin_nvr.tmp:260 (state 13)	[((!(a)||!(started)))]
-
-Never claim moves to line 260	[((!(a)||!(started)))]
- 20:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:51 (state 51)	[(1)]
-
-MSC: ~G line 253
- 21:	proc  - (piv:1) _spin_nvr.tmp:253 (state 1)	[((!(a)||!(started)))]
-
-Never claim moves to line 253	[((!(a)||!(started)))]
- 22:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:51 (state 52)	[a = 0]	<merge 91 now @53>
-
- 22:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:51 (state 53)	[b = 0]	<merge 91 now @54>
-		b = 0
-
- 22:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:51 (state 54)	[c = 1]	<merge 91 now @55>
-		b = 0
-		c = 1
-
-moving to 2
- 22:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:51 (state 55)	[printf('moving to 2\\n')]	<merge 91 now @56>
-		b = 0
-		c = 1
-
- 22:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:51 (state 56)	[f = !(f)]	<merge 91 now @91>
-		b = 0
-		c = 1
-		f = 0
-
-MSC: ~G line 260
- 23:	proc  - (piv:1) _spin_nvr.tmp:260 (state 13)	[((!(a)||!(started)))]
-
-Never claim moves to line 260	[((!(a)||!(started)))]
- 24:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:47 (state 36)	[((((a==0)&&(b==0))&&(c==1)))]
-
-MSC: ~G line 253
- 25:	proc  - (piv:1) _spin_nvr.tmp:253 (state 1)	[((!(a)||!(started)))]
-
-Never claim moves to line 253	[((!(a)||!(started)))]
- 26:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:47 (state 37)	[a = 0]	<merge 91 now @38>
-
- 26:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:47 (state 38)	[b = 1]	<merge 91 now @39>
-		b = 1
-
- 26:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:47 (state 39)	[c = 0]	<merge 91 now @40>
-		b = 1
-		c = 0
-
-moving to 4
- 26:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:47 (state 40)	[printf('moving to 4\\n')]	<merge 91 now @41>
-		b = 1
-		c = 0
-
- 26:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:47 (state 41)	[f = !(f)]	<merge 91 now @91>
-		b = 1
-		c = 0
-		f = 1
-
-MSC: ~G line 260
- 27:	proc  - (piv:1) _spin_nvr.tmp:260 (state 13)	[((!(a)||!(started)))]
-
-Never claim moves to line 260	[((!(a)||!(started)))]
- 28:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:49 (state 50)	[((((a==0)&&(b==1))&&(c==0)))]
-
-MSC: ~G line 253
- 29:	proc  - (piv:1) _spin_nvr.tmp:253 (state 1)	[((!(a)||!(started)))]
-
-Never claim moves to line 253	[((!(a)||!(started)))]
- 30:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:51 (state 51)	[(1)]
-
-MSC: ~G line 260
- 31:	proc  - (piv:1) _spin_nvr.tmp:260 (state 13)	[((!(a)||!(started)))]
-
-Never claim moves to line 260	[((!(a)||!(started)))]
- 32:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:51 (state 52)	[a = 0]	<merge 91 now @53>
-
- 32:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:51 (state 53)	[b = 0]	<merge 91 now @54>
-		b = 0
-
- 32:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:51 (state 54)	[c = 1]	<merge 91 now @55>
-		b = 0
-		c = 1
-
-moving to 2
- 32:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:51 (state 55)	[printf('moving to 2\\n')]	<merge 91 now @56>
-		b = 0
-		c = 1
-
- 32:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:51 (state 56)	[f = !(f)]	<merge 91 now @91>
-		b = 0
-		c = 1
-		f = 0
-
-MSC: ~G line 253
- 33:	proc  - (piv:1) _spin_nvr.tmp:253 (state 1)	[((!(a)||!(started)))]
-
-Never claim moves to line 253	[((!(a)||!(started)))]
- 34:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:47 (state 36)	[((((a==0)&&(b==0))&&(c==1)))]
-
-MSC: ~G line 261
- 35:	proc  - (piv:1) _spin_nvr.tmp:261 (state 15)	[(1)]
-
-Never claim moves to line 261	[(1)]
- 36:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:47 (state 37)	[a = 0]	<merge 91 now @38>
-
- 36:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:47 (state 38)	[b = 1]	<merge 91 now @39>
-		b = 1
-
- 36:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:47 (state 39)	[c = 0]	<merge 91 now @40>
-		b = 1
-		c = 0
-
-moving to 4
- 36:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:47 (state 40)	[printf('moving to 4\\n')]	<merge 91 now @41>
-		b = 1
-		c = 0
-
- 36:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:47 (state 41)	[f = !(f)]	<merge 91 now @91>
-		b = 1
-		c = 0
-		f = 1
-
-MSC: ~G line 280
- 37:	proc  - (piv:1) _spin_nvr.tmp:280 (state 47)	[(1)]
-
-Never claim moves to line 280	[(1)]
- 38:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:49 (state 50)	[((((a==0)&&(b==1))&&(c==0)))]
-
-MSC: ~G line 279
- 39:	proc  - (piv:1) _spin_nvr.tmp:279 (state 45)	[(!(a))]
-
-Never claim moves to line 279	[(!(a))]
- 40:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:52 (state 58)	[(1)]
-
-MSC: ~G line 260
- 41:	proc  - (piv:1) _spin_nvr.tmp:260 (state 13)	[((!(a)||!(started)))]
-
-Never claim moves to line 260	[((!(a)||!(started)))]
- 42:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:52 (state 59)	[a = 0]	<merge 91 now @60>
-
- 42:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:52 (state 60)	[b = 1]	<merge 91 now @61>
-
- 42:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:52 (state 61)	[c = 1]	<merge 91 now @62>
-		c = 1
-
-moving to 3
- 42:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:52 (state 62)	[printf('moving to 3\\n')]	<merge 91 now @63>
-		c = 1
-
- 42:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:52 (state 63)	[f = !(f)]	<merge 91 now @91>
-		c = 1
-		f = 0
-
-MSC: ~G line 254
- 43:	proc  - (piv:1) _spin_nvr.tmp:254 (state 3)	[(1)]
-
-Never claim moves to line 254	[(1)]
- 44:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:48 (state 43)	[((((a==0)&&(b==1))&&(c==1)))]
-
-MSC: ~G line 281
- 45:	proc  - (piv:1) _spin_nvr.tmp:281 (state 49)	[(!(a))]
-
-Never claim moves to line 281	[(!(a))]
- 46:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:48 (state 44)	[a = 0]	<merge 91 now @45>
-
- 46:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:48 (state 45)	[b = 1]	<merge 91 now @46>
-
- 46:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:48 (state 46)	[c = 0]	<merge 91 now @47>
-		c = 0
-
-moving to 4
- 46:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:48 (state 47)	[printf('moving to 4\\n')]	<merge 91 now @48>
-		c = 0
-
- 46:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:48 (state 48)	[f = !(f)]	<merge 91 now @91>
-		c = 0
-		f = 1
-
-MSC: ~G line 269
- 47:	proc  - (piv:1) _spin_nvr.tmp:269 (state 29)	[((!(!(started))&&!(a)))]	<merge 0 now @30>
-
-spin: _spin_nvr.tmp:269, Error: assertion violated
-spin: text of failed assertion: assert(!((!(!(started))&&!(a))))
+MSC: ~G line 71
+  5:	proc  - (p4:1) _spin_nvr.tmp:71 (state 14)	[(!(a))]	<merge 0 now @15>
+
+spin: _spin_nvr.tmp:71, Error: assertion violated
+spin: text of failed assertion: assert(!(!(a)))
 #processes: 1
 		a = 0
 		b = 1
-		c = 0
-		started = 1
-		f = 1
- 47:	proc  0 (TransitionSystem:1) ex1-temporal-logic.pml:41 (state 91)
- 47:	proc  - (piv:1) _spin_nvr.tmp:269 (state 30)
+		c = 1
+		clock = 0
+  5:	proc  0 (P:1) ex1-temporal-logic.pml:33 (state 36)
+  5:	proc  - (p4:1) _spin_nvr.tmp:71 (state 15)
 1 processes created
 Exit-Status 0
 
 Guided simulation trail written to ex1-temporal-logic.pml.gui_sim.out
+
+
+

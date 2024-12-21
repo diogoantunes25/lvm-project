@@ -1,0 +1,70 @@
+Checking syntax and generating the pan.c verifier ...
+/run/current-system/sw/bin/spin -a road.pml
+ltl pA: [] (! ((((state==w1)) || ((state==w2))) && (((state==e1)) || ((state==e2)))))
+ltl pB: [] (((! (((state==w1)) || ((state==w2)))) || (<> (! (((state==w1)) || ((state==w2)))))) && ((! (((state==e1)) || ((state==e2)))) || (<> (! (((state==e1)) || ((state==e2)))))))
+ltl pC: [] ((! (on_lane)) || (<> (! (on_lane))))
+ltl pD: [] ((! ((((state==w1)) || ((state==w2))) && (on_lane))) || (! (((state==e1)) || ((state==e2)))))
+ltl pE: [] ((! (at_w)) || (<> (((state==w1)) || ((state==w2)))))
+  the model contains 5 never claims: pE, pD, pC, pB, pA
+  only one claim is used in a verification run
+  choose which one with ./pan -a -N name (defaults to -N pA)
+  or use e.g.: spin -search -ltl pA road.pml
+No Syntax Error.
+
+Starting verification...
+/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DXUSAFE -O2 -DNFAIR=3 -DCOLLAPSE -DNOREDUCE -w -o pan pan.c
+./pan -m10000 -a -f -c1 -N pC
+
+Verification result:
+pan: ltl formula pC
+
+(Spin Version 6.5.2 -- 6 December 2019)
+	+ Compression
+
+Full statespace search for:
+	never claim         	+ (pC)
+	assertion violations	+ (if within scope of claim)
+	acceptance   cycles 	+ (fairness enabled)
+	invalid end states	- (disabled by never claim)
+
+State-vector 84 byte, depth reached 1454, errors: 0
+     5449 states, stored (21436 visited)
+    64325 states, matched
+    85761 transitions (= visited+matched)
+      172 atomic steps
+hash conflicts:        28 (resolved)
+
+Stats on memory usage (in Megabytes):
+    0.624	equivalent memory usage for states (stored*(State-vector + overhead))
+    0.567	actual memory usage for states (compression: 90.91%)
+         	state-vector as stored = 73 byte + 36 byte overhead
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  129.022	total actual memory usage
+
+
+nr of templates: [ 0:globals 1:chans 2:procs ]
+collapse counts: [ 0:177 2:4 3:4 4:2 5:5 6:13 7:2 10:2 ]
+unreached in proctype w_sensor
+	road.pml:37, state 15, "-end-"
+	(1 of 15 states)
+unreached in proctype e_sensor
+	road.pml:48, state 15, "-end-"
+	(1 of 15 states)
+unreached in proctype l_sensor
+	road.pml:56, state 10, "-end-"
+	(1 of 10 states)
+unreached in proctype timer
+	road.pml:66, state 12, "-end-"
+	(1 of 12 states)
+unreached in proctype controler
+	road.pml:86, state 29, "-end-"
+	(1 of 29 states)
+unreached in init
+	(0 of 7 states)
+unreached in claim pC
+	_spin_nvr.tmp:35, state 13, "-end-"
+	(1 of 13 states)
+
+pan: elapsed time 0.02 seconds
+pan: rate   1071800 states/second

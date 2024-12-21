@@ -1,0 +1,73 @@
+Checking syntax and generating the pan.c verifier ...
+/run/current-system/sw/bin/spin -a consensus.pml
+ltl agreement: [] ((! (((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && ((outputs[3]!=2)))) || ((((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))) && ((outputs[2]==outputs[3]))))
+ltl validity: [] ((! ((((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && ((outputs[3]!=2))) && ((((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))) && ((inputs[2]==inputs[3]))))) || ((((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))) && ((outputs[2]==outputs[3]))))
+ltl validity_strong: [] ((! (((((inputs[0]==inputs[1])) && ((inputs[1]==inputs[2]))) && ((inputs[2]==inputs[3]))) && (started))) || (((((v[0]==v[1])) && ((v[1]==v[2]))) && ((v[2]==v[3]))) && ((! (((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && ((outputs[3]!=2)))) || ((((outputs[0]==outputs[1])) && ((outputs[1]==outputs[2]))) && ((outputs[2]==outputs[3]))))))
+ltl termination: <> (((((outputs[0]!=2)) && ((outputs[1]!=2))) && ((outputs[2]!=2))) && ((outputs[3]!=2)))
+  the model contains 4 never claims: termination, validity_strong, validity, agreement
+  only one claim is used in a verification run
+  choose which one with ./pan -a -N name (defaults to -N agreement)
+  or use e.g.: spin -search -ltl agreement consensus.pml
+No Syntax Error.
+
+Starting verification...
+/run/current-system/sw/bin/gcc -DMEMLIM=8000 -DSAFETY -DXUSAFE -O2 -DCOLLAPSE -w -o pan pan.c
+./pan -m10000 -A -E -c1 -N validity_strong
+
+Verification result:
+warning: never claim + accept labels requires -a flag to fully verify
+pan: ltl formula validity_strong
+Depth=     461 States=    1e+06 Transitions= 1.54e+06 Memory=   184.589	t=     1.09 R=   9e+05
+Depth=     461 States=    2e+06 Transitions= 3.07e+06 Memory=   240.351	t=     2.18 R=   9e+05
+Depth=     461 States=    3e+06 Transitions= 4.58e+06 Memory=   296.112	t=     3.29 R=   9e+05
+Depth=     461 States=    4e+06 Transitions=  6.1e+06 Memory=   351.972	t=     4.45 R=   9e+05
+Depth=     461 States=    5e+06 Transitions= 7.62e+06 Memory=   407.929	t=     5.62 R=   9e+05
+Depth=     461 States=    6e+06 Transitions= 9.15e+06 Memory=   463.886	t=     6.82 R=   9e+05
+Depth=     461 States=    7e+06 Transitions= 1.07e+07 Memory=   519.940	t=     8.05 R=   9e+05
+Depth=     461 States=    8e+06 Transitions= 1.22e+07 Memory=   578.241	t=     9.29 R=   9e+05
+Depth=     461 States=    9e+06 Transitions= 1.37e+07 Memory=   636.835	t=     10.6 R=   9e+05
+Depth=     461 States=    1e+07 Transitions= 1.52e+07 Memory=   695.624	t=     11.9 R=   8e+05
+Depth=     461 States=  1.1e+07 Transitions= 1.68e+07 Memory=   753.925	t=     13.2 R=   8e+05
+Depth=     461 States=  1.2e+07 Transitions= 1.83e+07 Memory=   812.128	t=     14.6 R=   8e+05
+Depth=     461 States=  1.3e+07 Transitions= 1.98e+07 Memory=   869.940	t=       16 R=   8e+05
+
+(Spin Version 6.5.2 -- 6 December 2019)
+	+ Partial Order Reduction
+	+ Compression
+
+Full statespace search for:
+	never claim         	+ (validity_strong)
+	assertion violations	- (disabled by -A flag)
+	cycle checks       	- (disabled by -DSAFETY)
+	invalid end states	- (disabled by -E flag)
+
+State-vector 344 byte, depth reached 461, errors: 0
+ 13396337 states, stored
+  7007472 states, matched
+ 20403809 transitions (= stored+matched)
+   666382 atomic steps
+hash conflicts:   2366047 (resolved)
+
+Stats on memory usage (in Megabytes):
+ 4752.576	equivalent memory usage for states (stored*(State-vector + overhead))
+  763.856	actual memory usage for states (compression: 16.07%)
+         	state-vector as stored = 32 byte + 28 byte overhead
+  128.000	memory used for hash table (-w24)
+    0.534	memory used for DFS stack (-m10000)
+  892.108	total actual memory usage
+
+
+nr of templates: [ 0:globals 1:chans 2:procs ]
+collapse counts: [ 0:1120547 2:440 3:15 4:2 7:1 ]
+unreached in proctype reliable
+	(0 of 73 states)
+unreached in proctype faulty
+	(0 of 35 states)
+unreached in init
+	(0 of 36 states)
+unreached in claim validity_strong
+	_spin_nvr.tmp:26, state 10, "-end-"
+	(1 of 10 states)
+
+pan: elapsed time 16.6 seconds
+pan: rate 807981.72 states/second
