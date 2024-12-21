@@ -1,9 +1,9 @@
 /*
- * ROAD WORKS CONTROLLER
- * == LTL properties ==
- * Logic and Model Checking
- * Fall 2021
- */
+ *     EXERCISE 2
+ *  Road Works Controller LTL properties
+ *
+ * G08 (ist199240, ist198973, ist199210)
+*/
 
 /*
  * Required properties

@@ -1,3 +1,10 @@
+/*
+ *     EXERCISE 3
+ *  Consensus Protocol
+ *
+ * G08 (ist199240, ist198973, ist199210)
+*/
+
 #define N 4
 #define T 1
 #define c(i,j) _c[(i)*(N+T) + (j)]
@@ -8,16 +15,6 @@
 #define sameOutputs sameInVector(outputs)
 #define sameInputs sameInVector(inputs)
 #define sameVs sameInVector(v)
-
-// (for reliable only) memory limit set to 8000 and -O2 -DNFAIR=3 -DCOLLAPSE as compiler flags
-ltl agreement { [] (done -> sameOutputs)}
-
-// (for reliable only) memory limit set to 8000 and -O2 -DNFAIR=3 -DCOLLAPSE as compiler flags
-ltl validity { [] ((done && sameInputs) -> sameOutputs) }
-
-ltl validity_strong { [] ((sameInputs && started) -> (sameVs && (done -> sameOutputs))) }
-
-ltl termination { <>done }
 
 // c(i,j) is to send messages from i to j
 // there's no point in sending values to byz
@@ -166,3 +163,9 @@ init {
     started = 1;
   };
 }
+
+/*
+ *  == LTL properties ==
+ */
+
+#include "consensus_ltl.pml"

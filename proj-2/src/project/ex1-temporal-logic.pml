@@ -1,3 +1,10 @@
+/*
+ *     EXERCISE 1
+ *  Temporal Logic
+ *
+ * G08 (ist199240, ist198973, ist199210)
+*/
+
 // States can be identitied by propositional symbols that are true (in this case)
 bit a = 1, b = 0, c = 0;
 bit started = 0;

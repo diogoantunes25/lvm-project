@@ -1,9 +1,9 @@
 /*
- *   ROAD WORKS CONTROLLER
+ *     EXERCISE 2
+ *  Road Works Controller corrected
  *
- * Logic and Model Checking
- * Fall 2021
- */
+ * G08 (ist199240, ist198973, ist199210)
+*/
 
 #define TIME_LIMIT 3
 #define time_out (time == TIME_LIMIT)
