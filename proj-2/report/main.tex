@@ -30,7 +30,7 @@
 
 
 \newcommand{\idea}[1]{\textcolor{darkyellow}{#1}}
-\newcommand{\drafter}[1]{\textcolor{darkgreen}{#1}}
+\newcommand{\drafter}[1]{#1}
 \newcommand{\draft}[1]{\textcolor{purple}{#1}}
 \newcommand{\sad}[1]{\textcolor{red}{#1}}
 \newcommand{\blah}{\textbf{blah blah blah}}
@@ -59,30 +59,30 @@
 
 \subsubsection*{Exercise 1.1 (a)}
 
-\drafter{The transition system satisfies a formula $\phi$ if all the traces of the transition system are in the models of $\phi$.}
-\drafter{For this reason, to prove that the transition system does not satisfy the formula, it is enough to provide a path of the transition system whose trace does not satisfy the formula.}
-\drafter{To prove that the transitition system does satisfy the formula, we will argue that any path of the transition system is such that its trace satisfied the formula.}
+\drafter{The transition system satisfies a formula $\phi$ if all its traces are in the models of $\phi$.}
+\drafter{Consequently, to demonstrate that the transition system does not satisfy $\phi$, it suffices to provide a path whose trace fails to satisfy the formula.}
+\drafter{To prove that the transition system does satisfy the formula, we will show that any path of the transition system is such that its trace satisfies the formula.}
 
 \begin{enumerate}[label=\roman*.]
   \item $\mathsf{F}~\mathsf{G}~c$ -- not satisfied
 
-  \drafter{The formula states that eventually $c$ will hold forever.}
+  \drafter{The formula states that $c$ eventually will hold forever.}
   \drafter{If execution starts in state $s_2$, moves to $s_4$ and then moves back and forth between $s_3$ and $s_4$, $c$ doesn't always hold given that $c \notin L(s_4)$.}
   \drafter{Formally, the path is $s_2 (s_4 s_3)^\omega$.}
 
   \item $\mathsf{G}~\mathsf{F}~c$ -- satisfied
 
   \drafter{The formula states that it's always the case that $c$ will eventually hold.}
-  \drafter{The system will start at $s_1$ or $s_2$ and them move to either $s_2$, $s_3$ or or $s_5$, where $c$ holds.}
-  \drafter{From these it will go back to $s_4$ and then back to these forever.}
-  \drafter{For this reason, no matter the choice of actions, $c$ wil always eventually yhold.}
+  \drafter{The system will start at $s_1$ or $s_2$ and then move to either $s_2$, $s_3$ or $s_5$, where $c$ holds.}
+  \drafter{From these, it will go back to $s_4$ and then back to these forever.}
+  \drafter{For this reason, no matter the choice of actions, $c$ will always eventually hold.}
 
   \item $(\mathsf{X}\neg~c) \rightarrow (\mathsf{X}~\mathsf{X}~c)$ -- satisfied
 
   \drafter{The formula states that if in the second state $c$ doesn't hold, then in the third state $c$ will hold.}
   \drafter{There are only two possible second states - $s_3$ and $s_4$.}
   \drafter{Given that $c$ holds at $s_3$ we need only to consider $s_4$.}
-  \drafter{In all successors of $s_4$, $c$ holds, which means that the formula is satisfied.}
+  \drafter{In all successors of $s_4$, $c$ holds, which means the formula is satisfied.}
 
   \item $\mathsf{G}~a$ -- not satified
 
@@ -94,7 +94,7 @@
 
   \drafter{This formula states that $G(b \vee c)$ will hold and until then $a$ holds.}
   \drafter{$\mathsf{G}(b \vee c)$ means that at all instants either $b$ or $c$ holds.}
-  \drafter{Given the description of the system made previously and the fact the $b \vee c$ holds at $s_2$, $s_3$, $s_4$ and $s_5$, as soon as the system reaches one of these states $b \vee c$ will always hold, which means that $\mathsf{G}(b \vee c)$ holds as well.}
+  \drafter{Given the description of the system made previously and the fact that $b \vee c$ holds at $s_2$, $s_3$, $s_4$ and $s_5$, as soon as the system reaches one of these states $b \vee c$ will always hold, which means that $\mathsf{G}(b \vee c)$ holds as well.}
   \drafter{The only other state is $s_1$, where $a$ holds, which means that before reaching $s_2$, $s_3$, $s_4$ and $s_5$ $a$ will hold, which proves that the system satisfies the formula.}
 
 \end{itemize}
@@ -114,26 +114,17 @@
 % \drafter{This flag will be the state in two successive steps if and only if the step was a stutter.}
 % \drafter{With this rewrite, the LTL formulas are encoded in the following way ($\texttt{moved} \triangleq \texttt{f} \neq \mathsf{X}~\texttt{f}$).}
 
-\begin{enumerate}[label=\roman*.]
-  \item {\neg~\texttt{started}~\mathsf{U}~(\texttt{started} \wedge \lozenge~\square~$c$)}
+Each state was modelled using setting variables $a$, $b$, $c$ and transitions between states using gotos. Before this we also tried using while loops,
+but there was a mismatch between Promela's states and the transition system being modelled.
 
-  \item {\neg~\texttt{started}~\mathsf{U}~(\texttt{started} \wedge \square~\lozenge~$c$)}
-
-  \item {\neg~\texttt{started}~\mathsf{U}~(\texttt{started} \wedge ((\mathsf{X}~\neg~$c$ ~\wedge~\texttt{moved}~\wedge~\mathsf{X}~\texttt{moved}) \rightarrow (\mathsf{X}~\mathsf{X}~$c$)))}
-
-  \item {\neg~\texttt{started}~\mathsf{U}~(\texttt{started} \wedge \square~$a$)}
-
-  \item {\neg~\texttt{started}~\mathsf{U}~(\texttt{started} \wedge ($a$~\mathsf{U}~\square~($b$ \vee $c$))))}
-
-\end{enumerate}
 
 \drafter{By using this encoding of the LTL formulas, Spin confirms the results from the previous exercise.}
 \drafter{The counter-example provided are the following\footnote{The complete output can be found in files \texttt{extras/spin-output-1.1.b.*.txt}}.}
 
 \begin{enumerate}[label=\roman*.]
-  \item $s_1 s_3 s_4 s_2 s_4 (s_2 s_4)^\omega$
+  \item $s_1 s_3 s_4 (s_2 s_4)^\omega$
   \addtocounter{enumi}{2}
-  \item $s_1 s_3 s_4 s_2 s_4 s_2 s_4 s_3 s_4$
+  \item $s_2$
 \end{enumerate}
 
 \subsection*{Exercise 1.2}
@@ -142,21 +133,21 @@
 
 \drafter{\textbf{Definition} Let $\varphi$ be an LTL formula and $\alpha$ be a CTL formula (both over $\Xi$). Then, $\varphi$ and $\alpha$ are said to be equivalent, denoted by $\varphi \equiv \alpha$, if $T \models \varphi$ if and only if $T \models \alpha$.}
 
-\drafter{\textbf{Theorem} Let $\alpha$ be a CTL formula and let $\varphi$ be the LTL formula obtained from $\alpha$ by omitting all path quantifiers. Then, $\varphi \equiv \alpha$ or there is no LTL formula that is equivalent to $\alpha$}
+\drafter{\textbf{Theorem} Let $\alpha$ be a CTL formula and let $\varphi$ be the LTL formula obtained from $\alpha$ by omitting all path quantifiers. Then, $\varphi \equiv \alpha$ or there is no LTL formula that is equivalent to $\alpha$.}
 
 \begin{enumerate}[label=(\alph*)]
   \item Let $\alpha = \mathsf{A}~\mathsf{G}~\mathsf{A}~\mathsf{X}~p$ and $\varphi = \mathsf{G}~\mathsf{X}~p$.
 
-    $\mathsf{A}~\mathsf{G}~\mathsf{A}~\mathsf{X}~p$ states that $\mathsf{A}~\mathsf{X}~p$ is an invariants, i.e., holds for every state in every path.
+    $\mathsf{A}~\mathsf{G}~\mathsf{A}~\mathsf{X}~p$ states that $\mathsf{A}~\mathsf{X}~p$ is an invariant, i.e., holds for every state in every path.
     $\mathsf{A}~\mathsf{X}~p$ states that $p$ holds in all successors.
-    For this reason $\alpha$ states that $p$ holds in all states after the first.
+    For this reason, $\alpha$ states that $p$ holds in all states after the first.
 
     $\varphi$ states that $p$ holds everywhere but the first state (it might or not hold in the first state).
 
   \item Let $\alpha = \mathsf{A}~\mathsf{F}~\mathsf{A}~\mathsf{X}~p$ and $\varphi = \mathsf{F}~\mathsf{X}~p$.
     % The formula corresponding to $\alpha$ is $\varphi = \mathsf{F}~\mathsf{X}~p$.
-    $\mathsf{A}~\mathsf{F}~\mathsf{A}~\mathsf{X}~p$ states that in all paths eventually a state will be such where all sucessors satisfy $p$.
-    A transition system satisfies $\mathsf{F}~\mathsf{X}~p$ if all its traces eventually have a states that is not initial that satisfies $p$.
+    $\mathsf{A}~\mathsf{F}~\mathsf{A}~\mathsf{X}~p$ states that in all paths eventually a state will be such where all successors satisfy $p$.
+    A transition system satisfies $\mathsf{F}~\mathsf{X}~p$ if all its traces eventually have a state that is not initial that satisfies $p$.
     These are not equivalent and proved by the following counter-example, which satisfies $\varphi$ but not $\alpha$.
 
     \begin{figure}[ht]
@@ -225,13 +216,13 @@
 
 \subsection*{Exercise 2.2}
 
-\drafter{For convinience the definition of safety and liveness properties are restated (this is taken from Module 4 of the lecture notes):}
+\drafter{For convenience the definition of safety and liveness properties are restated (this is taken from Module 4 of the lecture notes):}
 
-\drafter{\textbf{Definition} An LT property $P_{safe}$ over $\Xi$ is called a safety property if for all words $\sigma \in (2^\Xi)^\omega \ P_{safe}$ there exists a finite prefix $\hat{\sigma}$ of $\sigma$ such that $P_{safe} \cap \{\sigma' \in (2^\Xi)^\omega~|~\hat{\sigma}$ is a finite prefix of $\sigma' \} = \emptyset $}.
+\drafter{\textbf{Definition} An LT property $P_{safe}$ over $\Xi$ is called a safety property if for all words $\sigma \in (2^\Xi)^\omega \backslash P_{safe}$ there exists a finite prefix $\hat{\sigma}$ of $\sigma$ such that $P_{safe} \cap \{\sigma' \in (2^\Xi)^\omega~|~\hat{\sigma}$ is a finite prefix of $\sigma' \} = \emptyset $}.
 
 \drafter{\textbf{Definition} An LT property $P_{live}$ over $\Xi$ is called a liveness property if $pref(P_{live}) = (2^{\Xi})^*$}.
 
-\drafter{Put simple, a property is a safety property if all words that are not in the language are not in the language because of a prefix -- any other word with that same prefix won't be in the language either (because in that prefix something bad happened) and a liveness property is one for each all finite prefixes are prefixes of some word in the language (become something good might still happen).}
+\drafter{Put simply, a property is a safety property if all words that are not in the language are not in the language because of a prefix -- any other word with that same prefix won't be in the language either (because in that prefix something bad happened) and a liveness property is one for each all finite prefixes are prefixes of some word in the language (become something good might still happen).}
 
 \drafter{With the definitions just presented, the formulas can be classified in the following manner.}
 
@@ -250,8 +241,8 @@
 
 \subsection*{Exercise 2.3}
 
-\drafter{As requested, the LTL formulas were written to \texttt{road\_ltl.pml} and Spin was used to check if model satisfies properties -- Spin's output of running the model can be found at \texttt{extras/spin\allowbreak-output-2.3.*.txt}.}
-\drafter{The (very simplified) counter example provided by Spin was the following\footnote{The complete example is available in the \texttt{extras}}:}
+\drafter{As requested, the LTL formulas were written to \texttt{road\_ltl.pml} and Spin was used to check if the model satisfies the properties -- Spin's output of running the model can be found at \texttt{extras/spin\allowbreak-output-2.3.*.txt}.}
+\drafter{The (very simplified) counterexample provided by Spin was the following\footnote{The complete example is available in the \texttt{extras}}:}
 
 \begin{enumerate}
   \item Car at east
@@ -268,10 +259,10 @@
 
 \subsection*{Exercise 2.4}
 
-\drafter{The initial model fails to satisfy property (e) because it does truly ensure fairness.}
+\drafter{The initial model fails to satisfy property (e) because it doesn't truly ensure fairness.}
 \drafter{Weak fairness relies on an action being continuously enabled, but that does not happen.}
 \drafter{If one car crosses, the safety properties prevent the other from crossing and safety disables it.}
-\drafter{So a stronger notion of safety is required -- that if west just passed, it can only go if east it not waiting.}
+\drafter{So a stronger notion of safety is required -- that if the west just passed, it can only go if the east is not waiting.}
 \drafter{This can be done by having a single flag for this.}
 
 \section*{Exercise 3}
@@ -283,7 +274,7 @@
 \subsection*{Exercise 3.2}
 
 \drafter{The protocol should satisfy three properties: agreement, validity and termination.}
-\drafter{For the purposes of specifying the formulas, let $inputs_i \in \{0,1\}$ denote the inputs of process $P_i for i \in \{1, .., |N|\}$ and $outputs_i \in \{0,1, \bot\}$ denote the output ($\bot$ is process hasn't outputed yet).}
+\drafter{To specify the formulas, let $inputs_i \in \{0,1\}$ denote the inputs of the process $P_i ~$for$~ i \in \{1, .., |N|\}$ and $outputs_i \in \{0,1, \bot\}$ denote the output ($\bot$ is the process hasn't outputted yet).}
 \drafter{Note that this is only defined for correct processes.}
 \drafter{For convenience let $done \triangleq \bigwedge_{i \in \{1, .., |N|\}} outputs_i \neq \bot$, given an array $v$, $allSame(v) \triangleq \exists x \, \forall y \in v \, (x = y)$.}
 \drafter{The encoding of these properties as LTL formulas is the following.}
@@ -294,10 +285,10 @@
   \item Termination: $\lozenge~done$
 \end{itemize}
 
-\drafter{We noted that the validity property that the project statement specified was different from what the paper specified and from what is Distributed System's usual notion of validity.}
-\drafter{The previous definition refered to the latter.}
-\drafter{For completeness the former, which requires the intermediate values to be uniform throughput the execution, is specified (we call it strong validity):}
-\drafter{For this we need to assume a common vector $v$ where $v_i$ is the value of process $i$.}
+\drafter{We noted that the validity property that the project statement specified was different from what the paper specified and from what is the Distributed System's usual notion of validity.}
+\drafter{The previous definition referred to the latter.}
+\drafter{For completeness the former, which requires the intermediate values to be uniform throughout the execution, is specified (we call it strong validity):}
+\drafter{For this, we need to assume a common vector $v$ where $v_i$ is the value of process $i$.}
 
 \begin{itemize}
   \item Strong validity: $\square (allSame(inputs) \rightarrow (allSame(v) \wedge (done \rightarrow allSame(outputs))))$
@@ -309,7 +300,7 @@
 
 \subsection*{Exercise 3.4}
 
-\drafter{To check that this condition is indeed required, the number of faulty nodes was increase.}
+\drafter{To check that this condition is indeed required, the number of faulty nodes was increased.}
 \drafter{A single extra faulty process was added by setting \texttt{T} to 2.}
 
 % TODO: hand output
